@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
-import PageLayout from "../../Layout/PageLayout";
+import PageLayout from "../../layouts/PageLayout";
 import Card from "../../components/Card";
 import clientApi from "../../api/clientApi";
-import {
-  Link,
-  useLocation,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { InspectionItem, Job } from "../../types";
 import Loading from "../../components/Loading";
 import { Box, Button, Flex, Grid, Heading, Text } from "@chakra-ui/react";
@@ -147,7 +142,7 @@ const ViewAddedItems = () => {
                       <Text>
                         Note:-
                         <Text as="span" color={"text.500"}>
-                          {item.note}
+                          {item.note || "N/A"}
                         </Text>
                       </Text>
                     </Box>

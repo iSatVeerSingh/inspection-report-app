@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import PageLayout from "../../Layout/PageLayout";
+import PageLayout from "../../layouts/PageLayout";
 import Card from "../../components/Card";
 import MiniDetail from "../../components/MiniDetail";
 import {

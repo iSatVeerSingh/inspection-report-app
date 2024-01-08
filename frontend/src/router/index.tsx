@@ -8,6 +8,8 @@ import JobDetails from "../pages/Jobs/JobDetails";
 import AddInspectionNotes from "../pages/Jobs/AddInspectionNotes";
 import ViewAddedNotes from "../pages/Jobs/ViewAddedNotes";
 import AddInspectionItems from "../pages/Jobs/AddInspectionItems";
+import ViewAddedItems from "../pages/Jobs/ViewAddedItems";
+import ItemPreview from "../pages/Jobs/ItemPreview";
 
 export default createBrowserRouter([
   {
@@ -33,8 +35,16 @@ export default createBrowserRouter([
       },
       {
         path: paths.ADD_ITEMS,
-        element: <AddInspectionItems />
-      }
+        element: <AddInspectionItems />,
+      },
+      {
+        path: paths.VIEW_EDIT_ITEMS,
+        element: <ViewAddedItems />,
+      },
+      {
+        path: paths.INSPECTION_ITEM_PREVIEW,
+        element: <ItemPreview />,
+      },
     ],
   },
   {

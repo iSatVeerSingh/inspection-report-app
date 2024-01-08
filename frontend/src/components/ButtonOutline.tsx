@@ -1,6 +1,10 @@
 import { Button, ButtonProps } from "@chakra-ui/react";
+import { Ref, forwardRef } from "react";
 
-const ButtonOutline = ({ children, ...props }: ButtonProps) => {
+const ButtonOutline = (
+  { children, ...props }: ButtonProps,
+  ref: Ref<HTMLButtonElement>
+) => {
   return (
     <Button
       {...props}
@@ -10,10 +14,11 @@ const ButtonOutline = ({ children, ...props }: ButtonProps) => {
       bg={"primary.50"}
       border="2px"
       borderColor={"primary.500"}
+      ref={ref}
     >
       {children}
     </Button>
   );
 };
 
-export default ButtonOutline;
+export default forwardRef(ButtonOutline);
