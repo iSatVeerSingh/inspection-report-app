@@ -44,6 +44,38 @@ const JobDetails = () => {
     setJob({ ...job, status: JobStatus.IN_PROGRESS });
   };
 
+  // const myReport = async () => {
+  //   const response = await fetch("/reports2.json");
+  //   const report = await response.json();
+
+  //   report.inspectionNotes?.forEach(async (note: string) => {
+  //     const response = await clientApi.post(
+  //       `/jobs/note?jobNumber=${jobNumber}`,
+  //       {
+  //         note,
+  //       }
+  //     );
+  //     console.log(response);
+  //   });
+
+  //   report.inspectionItems.forEach(async (item: any) => {
+  //     const category = item.itemName.split(":-")[0];
+  //     const name = item.itemName.split(":-")[1];
+  //     const response = await clientApi.post(
+  //       `/jobs/inspection-items?jobNumber=${job?.jobNumber}`,
+  //       {
+  //         name,
+  //         category,
+  //         images: item.itemImages,
+  //         note: item.itemNote,
+  //         isCustom: false,
+  //       }
+  //     );
+
+  //     console.log(response);
+  //   });
+  // };
+
   return (
     <PageLayout title="Job Details">
       {loading ? (
@@ -169,6 +201,24 @@ const JobDetails = () => {
                     </ButtonOutline>
                   </Flex>
                 </Box>
+                <Box mt={4}>
+                  <Heading
+                    as="h3"
+                    fontSize={"xl"}
+                    fontWeight={"semibold"}
+                    color={"text.700"}
+                  >
+                    Generate Report
+                  </Heading>
+                  <Flex>
+                    <ButtonPrimary onClick={() => navigate("./preview")}>
+                      Generate and Preview PDF
+                    </ButtonPrimary>
+                  </Flex>
+                </Box>
+                {/* <ButtonPrimary onClick={myReport} mt={3}>
+                  Dmeo repor
+                </ButtonPrimary> */}
               </>
             )}
           </Card>

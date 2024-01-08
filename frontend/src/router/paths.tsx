@@ -6,6 +6,8 @@ export const ADD_ITEMS = JOB_DETAILS + "/add-items";
 export const VIEW_EDIT_ITEMS = JOB_DETAILS + "/all-items";
 export const INSPECTION_ITEM_PREVIEW = VIEW_EDIT_ITEMS+ "/:uuid";
 
+export const REPORT_PREVIEW = JOB_DETAILS + "/preview"
+
 // Library items
 export const LIBRARY_ITEMS = "/library-items";
 export const LIBRARY_ITEM = LIBRARY_ITEMS + "/:id";

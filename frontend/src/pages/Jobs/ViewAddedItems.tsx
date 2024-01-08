@@ -99,12 +99,7 @@ const ViewAddedItems = () => {
               <MiniDetail property="Site Address" value={job?.siteAddress!} />
             </Grid>
           </Card>
-          <Flex
-            direction={{ base: "column", lg: "row" }}
-            alignItems={{ base: "start", lg: "center" }}
-            gap={2}
-            mt={2}
-          >
+          <Flex alignItems="center" gap={2} mt={2}>
             <Flex gap={3} alignItems={"center"}>
               <Text>Filter</Text>
               <FilterSelect

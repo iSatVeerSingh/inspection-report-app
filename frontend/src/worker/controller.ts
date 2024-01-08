@@ -562,6 +562,21 @@ export const getLibraryItemCategoriesController: RouteHandler = async () => {
   }
 };
 
+// Create new Job
+export const newJobController: RouteHandler = async ({ request }) => {
+  try {
+    const body = await request.json();
+    if (!body) {
+      return getBadRequestResponse();
+    }
+
+    await DB.jobs.add(body);
+    return getSuccessResponse({ message: "job added" });
+  } catch (err) {
+    return getBadRequestResponse();
+  }
+};
+
 // // Get Library items
 // export const getLibraryItemsController: RouteHandler = async ({ url }) => {
 //   try {

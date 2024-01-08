@@ -23,6 +23,7 @@ import {
   initLibraryItemsController,
   initRecommendationsController,
   initUserController,
+  newJobController,
   startInspectionController,
 } from "./controller";
 
@@ -163,6 +164,13 @@ registerRoute(
   ({ url }) => url.pathname === "/client/library-item-categories",
   getLibraryItemCategoriesController,
   "GET"
+);
+
+// Create new custom job
+registerRoute(
+  ({ url }) => url.pathname === "/client/jobs",
+  newJobController,
+  "POST"
 );
 
 // // Get Library items
