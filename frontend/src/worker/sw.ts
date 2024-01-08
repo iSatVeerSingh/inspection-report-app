@@ -16,6 +16,7 @@ import {
   getJobsController,
   getLibraryItemCategoriesController,
   getLibraryItemIndexController,
+  getReportDetailsController,
   initInspectionNotesController,
   initJobCategoriesController,
   initJobsController,
@@ -157,6 +158,13 @@ registerRoute(
   ({ url }) => url.pathname === "/client/jobs/inspection-items",
   deleteInspectionItemController,
   "DELETE"
+);
+
+// Get Report Details
+registerRoute(
+  ({ url }) => url.pathname === "/client/jobs/report",
+  getReportDetailsController,
+  "GET"
 );
 
 // Get Library Item Category

@@ -211,7 +211,13 @@ const JobDetails = () => {
                     Generate Report
                   </Heading>
                   <Flex>
-                    <ButtonPrimary onClick={() => navigate("./preview")}>
+                    <ButtonPrimary
+                      onClick={() =>
+                        navigate("./preview", {
+                          state: job,
+                        })
+                      }
+                    >
                       Generate and Preview PDF
                     </ButtonPrimary>
                   </Flex>

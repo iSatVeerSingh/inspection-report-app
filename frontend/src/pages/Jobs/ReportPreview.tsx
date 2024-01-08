@@ -1,13 +1,178 @@
+import { useEffect, useRef } from "react";
 import Card from "../../components/Card";
 import PageLayout from "../../layouts/PageLayout";
+import { useLocation, useParams } from "react-router-dom";
+import ButtonPrimary from "../../components/ButtonPrimary";
+import clientApi from "../../api/clientApi";
+import { InspectionItem, Job } from "../../types";
+import { getItemPargarph } from "../../utils/itemParagraph";
 
 const ReportPreview = () => {
+  const { jobNumber } = useParams();
+  const { state: job }: { state: Job } = useLocation();
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const generateReport = async () => {
+    const response = await clientApi.get(`/jobs/report?jobNumber=${jobNumber}`);
+    const inspectionItems = response.data as InspectionItem[];
+
+    const maxWidth = 495 - 20; // in points
+    const maxHeightInpx = 1009; // in pixels
+
+    const itemsHeights: any[] = [];
+
+    for (let i = 0; i < inspectionItems.length; i++) {
+      const item = inspectionItems[i];
+
+      const itemDiv = document.createElement("div");
+      itemDiv.style.width = `${maxWidth}pt`;
+      itemDiv.style.fontFamily = "'Times New Roman', serif";
+      itemDiv.style.fontSize = "11pt";
+      itemDiv.style.lineHeight = "1.2";
+      itemDiv.style.paddingTop = "5pt";
+      parentRef.current?.appendChild(itemDiv);
+
+      const itemNameParagraph = document.createElement("p");
+      itemNameParagraph.style.fontWeight = "bold";
+      itemNameParagraph.textContent = item.name!;
+      itemDiv.appendChild(itemNameParagraph);
+
+      const openingParagraph = document.createElement("div");
+      const openingParagraphData = getItemPargarph(item.openingParagraph!);
+      if (typeof openingParagraphData === "string") {
+        openingParagraph.textContent = openingParagraphData;
+      } else {
+        for (let j = 0; j < openingParagraphData.length; j++) {
+          const paragraph = openingParagraphData[j];
+          const paragraphDiv = document.createElement("p");
+
+          for (let k = 0; k < paragraph.text.length; k++) {
+            const spanItem = paragraph.text[k];
+            const span = document.createElement("span");
+            span.textContent = spanItem.text;
+
+            if (spanItem.bold) {
+              span.style.fontWeight = "bold";
+            }
+            if (spanItem.italics) {
+              span.style.fontStyle = "italic";
+            }
+            if (spanItem.decoration) {
+              if (typeof spanItem.decoration === "string") {
+                span.style.textDecoration = spanItem.decoration;
+              } else {
+                span.style.textDecoration = "underline line-through";
+              }
+            }
+            paragraphDiv.appendChild(span);
+          }
+          openingParagraph.appendChild(paragraphDiv);
+        }
+      }
+      itemDiv.appendChild(openingParagraph);
+
+      if (item.note && item.note !== "") {
+        const noteParagraph = document.createElement("p");
+        noteParagraph.textContent = `Note :- ${item.note}`;
+        itemDiv.appendChild(noteParagraph);
+      }
+
+      const imageDiv = document.createElement("div");
+      imageDiv.style.display = "flex";
+      imageDiv.style.flexWrap = "wrap";
+      imageDiv.style.gap = "5pt";
+
+      for (let j = 0; j < item.images!.length; j++) {
+        const imageStr = item.images![j] as string;
+        const img = document.createElement("img");
+        img.src = imageStr;
+        img.style.width = "220pt";
+        img.style.height = "220pt";
+        imageDiv.appendChild(img);
+      }
+      itemDiv.appendChild(imageDiv);
+
+      const closingParagraph = document.createElement("div");
+      const closingParagraphData = getItemPargarph(item.closingParagraph!);
+      if (typeof closingParagraphData === "string") {
+        closingParagraph.textContent = closingParagraphData;
+      } else {
+        for (let j = 0; j < closingParagraphData.length; j++) {
+          const paragraph = closingParagraphData[j];
+          const paragraphDiv = document.createElement("p");
+
+          for (let k = 0; k < paragraph.text.length; k++) {
+            const spanItem = paragraph.text[k];
+            const span = document.createElement("span");
+            span.textContent = spanItem.text;
+
+            if (spanItem.bold) {
+              span.style.fontWeight = "bold";
+            }
+            if (spanItem.italics) {
+              span.style.fontStyle = "italic";
+            }
+            if (spanItem.decoration) {
+              if (typeof spanItem.decoration === "string") {
+                span.style.textDecoration = spanItem.decoration;
+              } else {
+                span.style.textDecoration = "underline line-through";
+              }
+            }
+            paragraphDiv.appendChild(span);
+          }
+          closingParagraph.appendChild(paragraphDiv);
+        }
+      }
+      itemDiv.appendChild(closingParagraph);
+
+      const height = itemDiv.clientHeight;
+      itemsHeights.push({
+        id: item.id,
+        height,
+      });
+    }
+
+    const final: any[] = [];
+
+    for (let i = 0; i < itemsHeights.length; i++) {
+      let item = itemsHeights[i];
+      let total = 0;
+
+      const isExists = final.find((finalItem: any) => finalItem.id === item.id);
+
+      if (isExists) {
+        continue;
+      }
+
+      if (item.height >= maxHeightInpx) {
+        item.pageBreak = true;
+        final.push(item);
+        total = item.height - maxHeightInpx;
+      }
+
+      for (let j = i; j < itemsHeights.length; j++) {
+        const current = itemsHeights[j];
+        if (total + current.height < maxHeightInpx) {
+          if (i === j) {
+            current.pageBreak = true;
+          }
+          final.push(current);
+          total += current.height;
+        }
+      }
+    }
+  };
+
   return (
     <PageLayout title="Report Preview">
-      <Card>hellorepvew</Card>
+      <Card>
+        <ButtonPrimary onClick={generateReport}>Get Report</ButtonPrimary>
+        <div ref={parentRef}></div>
+      </Card>
     </PageLayout>
-  )
-}
+  );
+};
 
 export default ReportPreview;
 

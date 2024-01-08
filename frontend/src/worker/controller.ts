@@ -577,6 +577,59 @@ export const newJobController: RouteHandler = async ({ request }) => {
   }
 };
 
+// Get Report Details
+export const getReportDetailsController: RouteHandler = async ({ url }) => {
+  const jobNumber = url.searchParams.get("jobNumber");
+  if (!jobNumber) {
+    return getBadRequestResponse();
+  }
+
+  try {
+    const transaction = await DB.transaction(
+      "rw",
+      DB.jobs,
+      DB.inspectionItems,
+      DB.libraryItems,
+      async () => {
+        const job = await DB.jobs.get(jobNumber);
+        if (!job) {
+          return null;
+        }
+
+        const inspectionItems = await DB.inspectionItems
+          .where({ job_id: job.id })
+          .toArray();
+
+        const allItemsWithLibrary = [];
+        for (let i = 0; i < inspectionItems.length; i++) {
+          const item = inspectionItems[i];
+          if (!item.isCustom) {
+            const libItem = await DB.libraryItems.get(item.library_item_id!);
+            if (libItem) {
+              allItemsWithLibrary.push({
+                ...item,
+                ...libItem,
+              });
+            }
+          } else {
+            allItemsWithLibrary.push(item);
+          }
+        }
+
+        return allItemsWithLibrary;
+      }
+    );
+
+    if (!transaction) {
+      return getBadRequestResponse();
+    }
+
+    return getSuccessResponse(transaction);
+  } catch (err) {
+    return getBadRequestResponse();
+  }
+};
+
 // // Get Library items
 // export const getLibraryItemsController: RouteHandler = async ({ url }) => {
 //   try {
