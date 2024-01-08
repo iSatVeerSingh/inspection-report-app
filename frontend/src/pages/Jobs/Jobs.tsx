@@ -9,6 +9,7 @@ import ButtonOutline from "../../components/ButtonOutline";
 import { Job, JobStatus } from "../../types";
 import { LocationIcon, UserIcon } from "../../icons";
 import Loading from "../../components/Loading";
+import NoResourceFound from "../../components/NoResourceFound";
 
 type Filter = {
   status?: string;
@@ -80,9 +81,11 @@ const Jobs = () => {
       ) : (
         <>
           <Flex
-            direction={{ base: "column", lg: "row" }}
-            alignItems={{ base: "start", lg: "center" }}
+            mx={"auto"}
+            direction="row"
+            alignItems="center"
             gap={2}
+            justify={"center"}
           >
             <Flex gap={3} alignItems={"center"}>
               <Text>Filter</Text>
@@ -114,7 +117,7 @@ const Jobs = () => {
           </Flex>
           <Box mt={4}>
             {jobs.length === 0 ? (
-              <Text>Couldn't get any jobs</Text>
+              <NoResourceFound>Couldn't get any jobs</NoResourceFound>
             ) : (
               <Grid gap={2}>
                 {jobs.map((job) => (
