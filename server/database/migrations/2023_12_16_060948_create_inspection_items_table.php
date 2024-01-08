@@ -20,6 +20,7 @@ return new class extends Migration
             $table->json('images')->nullable();
             $table->string('note')->nullable();
             // if custom item
+            $table->boolean('isCustom')->default(false);
             $table->string('name')->nullable();
             $table->text('openingParagraph')->nullable();
             $table->text('closingParagraph')->nullable();
@@ -29,7 +30,6 @@ return new class extends Migration
             $table->boolean('isPreviousItem')->default(false);
             $table->foreignId('previous_item_id')->nullable()->constrained('inspection_items');
             // $table->foreignId('previous_job_id')->nullable()->constrained('jobs');
-            // $table->boolean('isCustom')->default(false);
             // $table->string('summary')->nullable();
             $table->timestamps();
         });
