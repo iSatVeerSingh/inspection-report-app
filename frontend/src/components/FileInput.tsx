@@ -25,7 +25,7 @@ const FileInput = (
       isInvalid={inputError !== undefined && inputError !== ""}
     >
       {label && (
-        <FormLabel mb={0} fontSize={"lg"} color={"text.700"} htmlFor={id}>
+        <FormLabel mb={0} fontSize={"xl"} color={"text.700"} htmlFor={id}>
           {label}
           {subLabel && (
             <Text as="span" color={"text.500"} fontSize={"sm"} ml={3}>
@@ -39,12 +39,10 @@ const FileInput = (
         id={id}
         px={0}
         cursor={"pointer"}
-        bg={"neutral.50"}
-        border={"stroke"}
-        borderRadius={"xl"}
-        isRequired={isRequired}
-        height={10}
         {...props}
+        border={"stroke"}
+        borderRadius={"full"}
+        h="10"
         autoComplete="off"
         ref={ref}
       />

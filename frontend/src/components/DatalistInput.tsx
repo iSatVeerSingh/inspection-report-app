@@ -53,21 +53,19 @@ const DatalistInput = (
       isRequired={isRequired}
     >
       {label && (
-        <FormLabel mb={0} fontSize={"lg"} color={"text.700"} htmlFor={id}>
+        <FormLabel mb={0} fontSize={"xl"} color={"text.700"} htmlFor={id}>
           {label}
         </FormLabel>
       )}
       <Input
         id={id}
         onChange={filterList}
-        bg={"neutral.50"}
-        border={"stroke"}
-        borderRadius={"xl"}
-        borderColor={"gray.400"}
         isRequired={isRequired}
-        height={10}
-        autoComplete="off"
         {...props}
+        border={"stroke"}
+        borderRadius={"full"}
+        h="10"
+        autoComplete="off"
         ref={inputRef}
       />
       {inputError && <FormErrorMessage mt="0">{inputError}</FormErrorMessage>}

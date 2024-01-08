@@ -29,6 +29,7 @@ const FormInput = (
       <Input
         id={id}
         {...props}
+        isRequired={isRequired}
         border={"stroke"}
         borderRadius={"full"}
         h="10"

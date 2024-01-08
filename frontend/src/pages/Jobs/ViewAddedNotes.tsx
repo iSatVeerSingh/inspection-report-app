@@ -6,7 +6,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import PageLayout from "../../Layout/PageLayout";
+import PageLayout from "../../layouts/PageLayout";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Job } from "../../types";

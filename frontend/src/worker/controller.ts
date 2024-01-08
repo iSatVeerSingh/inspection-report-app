@@ -257,9 +257,18 @@ export const startInspectionController: RouteHandler = async ({ url }) => {
 };
 
 // Get Inspection Notes
-export const getInspectionNotesController: RouteHandler = async () => {
+export const getInspectionNotesController: RouteHandler = async ({ url }) => {
+  const category_id = url.searchParams.get("category_id");
+
   try {
-    const notes = await DB.inspectionNotes.toArray();
+    if (!category_id) {
+      const notes = await DB.inspectionNotes.toArray();
+      return getSuccessResponse(notes);
+    }
+
+    const notes = await DB.inspectionNotes
+      .where({ category_id: Number(category_id) })
+      .toArray();
     return getSuccessResponse(notes);
   } catch (err: any) {
     return getBadRequestResponse(err);

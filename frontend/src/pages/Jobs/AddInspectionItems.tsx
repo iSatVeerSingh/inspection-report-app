@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import PageLayout from "../../Layout/PageLayout";
+import PageLayout from "../../layouts/PageLayout";
 import Card from "../../components/Card";
 import { InspectionItem, InspectionItemForm, Job } from "../../types";
 import {
@@ -245,8 +245,8 @@ const AddInspectionItems = () => {
   return (
     <PageLayout
       title="Add Inspection Items"
-      titleBtn="Add Custom Item"
-      onBtnClick={onOpen}
+      btn="Add Custom Item"
+      onClick={onOpen}
     >
       {loading ? (
         <Loading />
