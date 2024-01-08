@@ -21,6 +21,7 @@ import {
   initJobsController,
   initLibraryItemCategoriesController,
   initLibraryItemsController,
+  initRecommendationsController,
   initUserController,
   startInspectionController,
 } from "./controller";
@@ -78,6 +79,13 @@ registerRoute(
 registerRoute(
   ({ url }) => url.pathname === "/client/init-job-categories",
   initJobCategoriesController,
+  "POST"
+);
+
+// Init Recommendations
+registerRoute(
+  ({ url }) => url.pathname === "/client/init-recommendations",
+  initRecommendationsController,
   "POST"
 );
 

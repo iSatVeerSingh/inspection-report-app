@@ -135,6 +135,26 @@ export const initJobCategoriesController: RouteHandler = async ({
   }
 };
 
+// Init Recommendations
+export const initRecommendationsController: RouteHandler = async ({
+  request,
+}) => {
+  const recommendations = await request.json();
+  if (!recommendations) {
+    return getBadRequestResponse();
+  }
+
+  try {
+    await DB.recommendations.clear();
+    await DB.recommendations.bulkAdd(recommendations);
+    return getSuccessResponse({
+      message: "Recommendations added successfully",
+    });
+  } catch (err: any) {
+    return getBadRequestResponse(err.message);
+  }
+};
+
 // Get Job categories
 export const getJobCategoriesController: RouteHandler = async () => {
   try {

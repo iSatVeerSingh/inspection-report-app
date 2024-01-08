@@ -112,6 +112,25 @@ const Init = () => {
     }
 
     setStatus("Fetching inspection notes");
+
+    const jobCategoriesResponse = await inspectionApi.get(
+      "/install-job-categories"
+    );
+    if (jobCategoriesResponse.status !== 200) {
+      setError("Something went wrong");
+      setIsInstalling(false);
+      return;
+    }
+    const initJobCategories = await clientApi.post(
+      "/init-job-categories",
+      jobCategoriesResponse.data
+    );
+    if (initJobCategories.status !== 200) {
+      setError("Something went wrong");
+      setIsInstalling(false);
+      return;
+    }
+
     const libraryNotesResponse = await inspectionApi.get(
       "/install-inspection-notes",
       {
@@ -137,6 +156,29 @@ const Init = () => {
       return;
     }
 
+    setStatus("Fetching inspector recommendations");
+    const recomResponse = await inspectionApi.get("/install-recommendations", {
+      onDownloadProgress: (e) => {
+        const downloadprogress = Math.floor(e.progress! * 100);
+        setProgress(downloadprogress);
+      },
+    });
+    if (recomResponse.status !== 200) {
+      setError("Something went wrong");
+      setIsInstalling(false);
+      return;
+    }
+
+    const initRecom = await clientApi.post(
+      "/init-recommendations",
+      recomResponse.data
+    );
+    if (initRecom.status !== 200) {
+      setError("Something went wrong");
+      setIsInstalling(false);
+      return;
+    }
+
     setStatus("Fetching initial jobs");
     const jobsResponse = await inspectionApi.get("/install-jobs");
     if (jobsResponse.status !== 200) {
@@ -146,23 +188,6 @@ const Init = () => {
     }
     const initjobs = await clientApi.post("/init-jobs", jobsResponse.data);
     if (initjobs.status !== 200) {
-      setError("Something went wrong");
-      setIsInstalling(false);
-      return;
-    }
-    const jobCategoriesResponse = await inspectionApi.get(
-      "/install-job-categories"
-    );
-    if (jobCategoriesResponse.status !== 200) {
-      setError("Something went wrong");
-      setIsInstalling(false);
-      return;
-    }
-    const initJobCategories = await clientApi.post(
-      "/init-job-categories",
-      jobCategoriesResponse.data
-    );
-    if (initJobCategories.status !== 200) {
       setError("Something went wrong");
       setIsInstalling(false);
       return;
@@ -223,7 +248,7 @@ const Init = () => {
           {error && (
             <Box textAlign={"center"}>
               <Text fontSize={"lg"} color={"red"}>
-                Error
+                {error}
               </Text>
             </Box>
           )}

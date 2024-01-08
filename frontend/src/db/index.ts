@@ -6,6 +6,7 @@ import {
   JobCategory,
   LibraryItem,
   LibraryItemCategory,
+  Recommendation,
 } from "../types";
 
 export class InspectionDatabase extends Dexie {
@@ -16,6 +17,7 @@ export class InspectionDatabase extends Dexie {
   jobs!: Table<Job>;
   jobCategories!: Table<JobCategory>;
   inspectionItems!: Table<InspectionItem>;
+  recommendations!: Table<Recommendation>;
 
   constructor() {
     super("inspection-db");
@@ -24,11 +26,12 @@ export class InspectionDatabase extends Dexie {
       libraryItemCategories: "++id, name",
       libraryItems:
         "++id, [name+category], [category_id+updated_at], updated_at",
-      inspectionNotes: "++id",
+      inspectionNotes: "++id, category_id",
       jobs: "++jobNumber, id, [status+category+startsAt], [status+category], [status+startsAt], [category+startsAt]",
       jobCategories: "++id",
       inspectionItems:
         "++uuid, job_id, library_item_id, isCustom, [job_id+isPreviousItem+category]",
+      recommendations: "++id",
     });
   }
 }

@@ -75,6 +75,7 @@ export type JobCategory = Omit<LibraryItemCategory, "itemsCount">;
 
 export type InspectionNote = {
   id: number;
+  category_id: number;
   text: string;
   created_at?: string;
   updated_at?: string;
@@ -97,6 +98,14 @@ export type InspectionItem = Partial<LibraryItem> & {
   images?: string[] | File[] | string;
   note?: string;
   isCustom?: boolean;
+};
+
+export type Recommendation = {
+  id: number;
+  active?: boolean;
+  text: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Paragraph = {
