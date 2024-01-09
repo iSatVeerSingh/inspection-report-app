@@ -35,7 +35,9 @@ class JobResource extends JsonResource
             "completedAt" => $this['completedAt'] === null ? null : $this['completedAt'],
             "description" => $this["description"],
             "inspector" => $this->inspector['name'],
-            "inspector_id" => $this['inspector_id']
+            "inspector_id" => $this['inspector_id'],
+            "type" => $this->category['type'],
+            "stageOfWorks" => $this->category['stageOfWorks']
         ];
 
         return $job;
