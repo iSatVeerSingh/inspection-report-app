@@ -19,6 +19,7 @@ import { RouteHandler } from "workbox-core";
 import { getBadRequestResponse, getSuccessResponse } from "./response";
 import { DB } from "../db";
 import { InspectionItem, Job, JobStatus, LibraryItem } from "../types";
+import { generatePdf } from "../utils/pdf";
 
 // Setup user in indexeddb
 export const initUserController: RouteHandler = async ({ request }) => {
@@ -96,6 +97,22 @@ export const initInspectionNotesController: RouteHandler = async ({
     return getSuccessResponse({
       message: "Inspection notes added successfully",
     });
+  } catch (err) {
+    return getBadRequestResponse();
+  }
+};
+
+//init template
+export const initTemplateController: RouteHandler = async ({ request }) => {
+  const template = await request.json();
+  if (!template) {
+    return getBadRequestResponse();
+  }
+
+  try {
+    await DB.template.clear();
+    await DB.template.add({ type: "template", ...template });
+    return getSuccessResponse({ message: "Template added successfully" });
   } catch (err) {
     return getBadRequestResponse();
   }
@@ -628,6 +645,98 @@ export const getReportDetailsController: RouteHandler = async ({ url }) => {
   } catch (err) {
     return getBadRequestResponse();
   }
+};
+
+export const generateReportController: RouteHandler = async ({
+  url,
+  request,
+}) => {
+  const jobNumber = url.searchParams.get("jobNumber");
+  if (!jobNumber) {
+    return getBadRequestResponse();
+  }
+
+  const body = await request.json();
+  if (!body) {
+    return getBadRequestResponse();
+  }
+
+  const itemHeights = body.itemsHeights as {
+    id: number;
+    height: number;
+    pageBreak?: boolean;
+  }[];
+
+  const transaction = await DB.transaction(
+    "rw",
+    DB.jobs,
+    DB.inspectionItems,
+    DB.libraryItems,
+    DB.template,
+    async () => {
+      const job = await DB.jobs.get(jobNumber);
+      if (!job) {
+        return null;
+      }
+
+      const inspectionItems = await DB.inspectionItems
+        .where({ job_id: job.id })
+        .toArray();
+
+      const allItemsWithLibrary: InspectionItem[] = [];
+      for (let i = 0; i < inspectionItems.length; i++) {
+        const item = inspectionItems[i];
+        if (!item.isCustom) {
+          const libItem = await DB.libraryItems.get(item.library_item_id!);
+          if (libItem) {
+            allItemsWithLibrary.push({
+              ...item,
+              ...libItem,
+            });
+          }
+        } else {
+          allItemsWithLibrary.push(item);
+        }
+      }
+
+      const finalItems = itemHeights.map((item) => {
+        const inspectionItem = allItemsWithLibrary.find(
+          (insItem) => insItem.id === item.id
+        );
+        return {
+          ...inspectionItem,
+          pageBreak: item.pageBreak,
+        };
+      });
+
+      const template = await DB.template.get("template");
+
+      return {
+        job,
+        items: finalItems,
+        template,
+      };
+    }
+  );
+  return getSuccessResponse(transaction);
+
+  // const pdf = await generatePdf(
+  //   transaction?.job!,
+  //   transaction!.items,
+  //   transaction?.template!
+  // );
+
+  // return getSuccessResponse(pdf);
+
+  // if (!transaction) {
+  //   return getBadRequestResponse();
+  // }
+
+  // try {
+
+  // } catch (err) {
+  //   return getBadRequestResponse();
+  // }
 };
 
 // // Get Library items

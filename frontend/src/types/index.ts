@@ -20,8 +20,10 @@ export type User = UserForm & {
 export type Job = {
   id: number;
   jobNumber: string;
+  type?: string | null;
   category_id: number;
   category: string;
+  stageOfWorks?: string | null;
   customer: Customer;
   siteAddress: string;
   startsAt: string;
@@ -98,6 +100,7 @@ export type InspectionItem = Partial<LibraryItem> & {
   images?: string[] | File[] | string;
   note?: string;
   isCustom?: boolean;
+  pageBreak?: boolean
 };
 
 export type Recommendation = {

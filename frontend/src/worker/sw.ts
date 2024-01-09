@@ -10,6 +10,7 @@ import {
   addInspectionNoteByJobController,
   deleteInspectionItemController,
   deleteInspectionNoteByJobController,
+  generateReportController,
   getAllInspectionItemsByJobController,
   getInspectionNotesController,
   getJobCategoriesController,
@@ -23,6 +24,7 @@ import {
   initLibraryItemCategoriesController,
   initLibraryItemsController,
   initRecommendationsController,
+  initTemplateController,
   initUserController,
   newJobController,
   startInspectionController,
@@ -67,6 +69,13 @@ registerRoute(
 registerRoute(
   ({ url }) => url.pathname === "/client/init-inspection-notes",
   initInspectionNotesController,
+  "POST"
+);
+
+// Init Template
+registerRoute(
+  ({ url }) => url.pathname === "/client/init-template",
+  initTemplateController,
   "POST"
 );
 
@@ -166,6 +175,15 @@ registerRoute(
   getReportDetailsController,
   "GET"
 );
+
+// Get Report Details
+registerRoute(
+  ({ url }) => url.pathname === "/client/jobs/generate-report",
+  generateReportController,
+  "POST"
+);
+
+
 
 // Get Library Item Category
 registerRoute(

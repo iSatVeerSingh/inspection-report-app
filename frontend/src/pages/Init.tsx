@@ -179,6 +179,14 @@ const Init = () => {
       return;
     }
 
+    const template = await (await fetch("/report-template.json")).json();
+    const initTemplate = await clientApi.post("/init-template", template);
+    if (initTemplate.status !== 200) {
+      setError("Something went wrong");
+      setIsInstalling(false);
+      return;
+    }
+
     setStatus("Fetching initial jobs");
     const jobsResponse = await inspectionApi.get("/install-jobs");
     if (jobsResponse.status !== 200) {

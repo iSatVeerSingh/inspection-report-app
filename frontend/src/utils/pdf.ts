@@ -1,17 +1,13 @@
 import pdfMake from "pdfmake/build/pdfmake";
 import {
   Content,
+  ContentStack,
   ContentTable,
   PageBreak,
   TDocumentDefinitions,
 } from "pdfmake/interfaces";
 import pdfFonts from "./pdfFonts";
-import {
-  Inspection,
-  InspectionItem,
-  InspectionNote,
-  ItemImage,
-} from "../types";
+import { InspectionItem, Job } from "../types";
 import { getItemPargarph } from "./itemParagraph";
 
 (pdfMake as any).vfs = pdfFonts;
@@ -54,20 +50,24 @@ const MONTHS = [
   "December",
 ];
 
-export const generatePdf = async (reportData: Inspection, template: any) => {
+export const generatePdf = async (
+  job: Job,
+  items: InspectionItem[],
+  template: any
+) => {
   const docDefinition: TDocumentDefinitions = {
-    ...getMeta(reportData, template),
+    ...getMeta(job, template),
     content: [
-      getTitlePage(reportData, template),
+      getTitlePage(job, template),
       getTableOfContents(),
-      getClientPropertyDetails(reportData),
-      getReportDetails(reportData),
-      getInspectionNotes(reportData.inspectionNotes!),
-      getReportSummary(reportData),
+      getClientPropertyDetails(job),
+      getReportDetails(job),
+      getInspectionNotes(job.inspectionNotes!),
+      getReportSummary(job, items.length),
       getPurpose(template),
       getGeneral(template),
       getBuildingDefects(template),
-      getItemsTable(reportData.inspectionItems!),
+      getItemsTable(items),
       getResponsibility(template),
       getTandC(template),
     ],
@@ -76,12 +76,14 @@ export const generatePdf = async (reportData: Inspection, template: any) => {
       fontSize: 11,
     },
     info: {
-      title: `${reportData.jobNumber} - ${reportData.jobType} Inspection Report`,
+      title: `${job.jobNumber} - ${job.type} Inspection Report`,
       author: "Correct Inspections",
-      subject: `${reportData.jobType}`,
+      subject: `${job.type}`,
       keywords: "Inspection Report, Correct Inspections",
     },
   };
+
+  // pdfMake.createPdf(docDefinition).open();
 
   return new Promise((resolve) => {
     pdfMake.createPdf(docDefinition).getDataUrl((result) => {
@@ -93,10 +95,7 @@ export const generatePdf = async (reportData: Inspection, template: any) => {
   });
 };
 
-const getMeta = (
-  reportData: Inspection,
-  template: any
-): Partial<TDocumentDefinitions> => {
+const getMeta = (job: Job, template: any): Partial<TDocumentDefinitions> => {
   return {
     pageSize: {
       width: 595,
@@ -113,7 +112,7 @@ const getMeta = (
                   {
                     image: template.images.logoImage,
                     marginLeft: 20,
-                    marginTop: 10,
+                    marginTop: 5,
                     width: 50,
                   },
                   {
@@ -132,7 +131,7 @@ const getMeta = (
       return currentPage === 1
         ? undefined
         : {
-            text: `${reportData.jobNumber} - ${reportData.category} Inspection Report`,
+            text: `${job.jobNumber} - ${job.type} Inspection Report`,
             color: "#002060",
             fontSize: 10,
             font: "Roboto",
@@ -140,11 +139,11 @@ const getMeta = (
           };
     },
     pageOrientation: "portrait",
-    pageMargins: [50, 60, 50, 25],
+    pageMargins: [50, 50, 50, 25],
   };
 };
 
-const getTitlePage = (reportData: Inspection, template: any): Content => {
+const getTitlePage = (job: Job, template: any): Content => {
   return [
     {
       image: template.images.topImage,
@@ -207,7 +206,7 @@ const getTitlePage = (reportData: Inspection, template: any): Content => {
       alignment: "center",
     },
     {
-      text: `${reportData.category}\nINSPECTION REPORT\n& DEFECTS LIST`,
+      text: `${job.type}\nINSPECTION REPORT\n& DEFECTS LIST`,
       alignment: "right",
       fontSize: 33,
       marginBottom: 10,
@@ -215,7 +214,7 @@ const getTitlePage = (reportData: Inspection, template: any): Content => {
       color: "#002060",
     },
     {
-      text: reportData.siteAddress,
+      text: job.siteAddress,
       alignment: "right",
       fontSize: 18,
       color: "#404040",
@@ -263,13 +262,13 @@ const getMainHeading = (heading: string, pageBreak?: PageBreak): Content => {
   };
 };
 
-const getClientPropertyDetails = (reportData: Inspection): Content => {
+const getClientPropertyDetails = (job: Job): Content => {
   return {
     pageBreak: "before",
     stack: [
       getMainHeading("Client & Property Details"),
-      getMiniDetails("Client Names(s):", reportData.customer),
-      getMiniDetails("Subject Property:", reportData.siteAddress),
+      getMiniDetails("Client Names(s):", job.customer.nameOnReport),
+      getMiniDetails("Subject Property:", job.siteAddress),
     ],
     marginBottom: 15,
   };
@@ -295,37 +294,37 @@ const getMiniDetails = (property: string, value: string): Content => {
   };
 };
 
-const getReportDetails = (reportData: Inspection): Content => {
+const getReportDetails = (job: Job): Content => {
   return {
     stack: [
       getMainHeading("Inspection & Report Details"),
-      getMiniDetails("Inspection Date:", getDateString(reportData.startedAt)),
-      getMiniDetails("Inspection Time:", timeTo12Hours(reportData.time)),
-      getMiniDetails("Stage Of Works:", getStage(reportData.category)),
+      getMiniDetails("Inspection Date:", getDateString(job.startsAt)),
+      getMiniDetails("Inspection Time:", job.startTime),
+      getMiniDetails("Stage Of Works:", job.stageOfWorks || "N/A"),
       getMiniDetails("Date of this report:", getDateString()),
     ],
     marginBottom: 15,
   };
 };
 
-const getStage = (type: string): string => {
-  const stage: any = {
-    "PRE-SLAB": "Prior to concrete slab pour.",
-    "POST-SLAB": "After the concrete slab has been poured.",
-    FRAME: "Approaching frame stage.",
-    "PRE-PLASTER": "Approaching lock-up stage.",
-    "LOCK-UP": "Approaching lock-up stage.",
-    FIXING: "Approaching fixing stage.",
-    WATERPROOFING: "Approaching fixing stage.",
-    "POINT IN TIME":
-      "A point in time not necessarily aligning with a building contract stage.",
-    HANDOVER: "Approaching completion.",
-    "MAINTENANCE & WARRANTY": "Maintenance/Warranty stage, after settlement.",
-    REINSPECTION: "Reinspection of previous report.",
-  };
+// const getStage = (type: string): string => {
+//   const stage: any = {
+//     "PRE-SLAB": "Prior to concrete slab pour.",
+//     "POST-SLAB": "After the concrete slab has been poured.",
+//     FRAME: "Approaching frame stage.",
+//     "PRE-PLASTER": "Approaching lock-up stage.",
+//     "LOCK-UP": "Approaching lock-up stage.",
+//     FIXING: "Approaching fixing stage.",
+//     WATERPROOFING: "Approaching fixing stage.",
+//     "POINT IN TIME":
+//       "A point in time not necessarily aligning with a building contract stage.",
+//     HANDOVER: "Approaching completion.",
+//     "MAINTENANCE & WARRANTY": "Maintenance/Warranty stage, after settlement.",
+//     REINSPECTION: "Reinspection of previous report.",
+//   };
 
-  return stage[type] || "Not Applicable";
-};
+//   return stage[type] || "Not Applicable";
+// };
 
 const getDateString = (str?: any) => {
   const date = str ? new Date(str) : new Date();
@@ -337,34 +336,34 @@ const getDateString = (str?: any) => {
   return dateString;
 };
 
-const timeTo12Hours = (time24: string) => {
-  let hours12;
-  let period = "";
-  const [hours, minutes] = time24.split(":").map(Number);
-  if (hours === 0) {
-    hours12 = "12";
-    period = "AM";
-  } else if (hours === 12) {
-    hours12 = "12";
-    period = "PM";
-  } else if (hours > 12) {
-    hours12 = (hours % 12).toString();
-    period = "PM";
-  } else {
-    hours12 = hours.toString();
-    period = "AM";
-  }
-  const time12 = `${getFormatDateValue(hours12)}:${getFormatDateValue(
-    minutes.toString()
-  )} ${period}`;
-  return time12;
-};
+// const timeTo12Hours = (time24: string) => {
+//   let hours12;
+//   let period = "";
+//   const [hours, minutes] = time24.split(":").map(Number);
+//   if (hours === 0) {
+//     hours12 = "12";
+//     period = "AM";
+//   } else if (hours === 12) {
+//     hours12 = "12";
+//     period = "PM";
+//   } else if (hours > 12) {
+//     hours12 = (hours % 12).toString();
+//     period = "PM";
+//   } else {
+//     hours12 = hours.toString();
+//     period = "AM";
+//   }
+//   const time12 = `${getFormatDateValue(hours12)}:${getFormatDateValue(
+//     minutes.toString()
+//   )} ${period}`;
+//   return time12;
+// };
 
-const getFormatDateValue = (str: string) => {
-  return str.length === 2 ? str : "0" + str;
-};
+// const getFormatDateValue = (str: string) => {
+//   return str.length === 2 ? str : "0" + str;
+// };
 
-const getInspectionNotes = (notes: InspectionNote[]): Content => {
+const getInspectionNotes = (notes: string[]): Content => {
   return {
     stack: [
       getMainHeading("Inspection Notes"),
@@ -421,10 +420,10 @@ const getItemsTable = (inspectionItems: InspectionItem[]): Content => {
   for (let i = 0; i < inspectionItems.length; i++) {
     const item = inspectionItems[i];
 
-    const openingParagraph = getItemPargarph(item.openingParagraph);
-    const closingParagraph = getItemPargarph(item.closingParagraph);
+    const openingParagraph = getItemPargarph(item.openingParagraph!);
+    const closingParagraph = getItemPargarph(item.closingParagraph!);
 
-    const reportItem: Content = {
+    const reportItem = {
       pageBreak: i !== 0 && item.pageBreak ? "before" : undefined,
       stack: [
         {
@@ -437,14 +436,16 @@ const getItemsTable = (inspectionItems: InspectionItem[]): Content => {
       ],
     };
     if (item.note) {
-      reportItem.stack.push({
+      (reportItem as ContentStack).stack.push({
         text: `Note:- ${item.note}`,
       });
     }
 
-    reportItem.stack.push(getImages(item.images!));
+    (reportItem as ContentStack).stack.push(
+      getImages(item.images! as string[])
+    );
 
-    reportItem.stack.push(
+    (reportItem as ContentStack).stack.push(
       ...((typeof closingParagraph === "string"
         ? [{ text: closingParagraph }]
         : closingParagraph) as unknown as Content[])
@@ -476,14 +477,14 @@ const getItemsTable = (inspectionItems: InspectionItem[]): Content => {
   };
 };
 
-const getImages = (itemImages: ItemImage[]): Content => {
+const getImages = (itemImages: string[]): Content => {
   const imgStack: Content = [];
 
   const imgRow: Content = {
     columnGap: 5,
     columns: [],
-    marginBottom: 5,
-    marginTop: 5,
+    marginBottom: 2,
+    marginTop: 2,
   };
   for (let i = 0; i < itemImages.length; i++) {
     const img = itemImages[i];
@@ -555,7 +556,7 @@ const getTandC = (template: any): Content => {
   };
 };
 
-const getReportSummary = (reportData: any): Content => {
+const getReportSummary = (job: Job, itemsLength: number): Content => {
   return {
     stack: [
       getMainHeading("Report Summary"),
@@ -566,18 +567,18 @@ const getReportSummary = (reportData: any): Content => {
             bold: true,
           },
           {
-            text: reportData.inspectionItems.length.toString(),
+            text: itemsLength,
           },
         ],
       },
-      ...(reportData.recommendation && reportData.recommendation !== ""
+      ...(job.recommendation && job.recommendation !== ""
         ? [
             {
               text: "Inspector Recommendations:",
               bold: true,
             },
             {
-              text: reportData.recommendation,
+              text: job.recommendation,
             },
           ]
         : []),

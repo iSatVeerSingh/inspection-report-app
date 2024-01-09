@@ -18,10 +18,11 @@ export class InspectionDatabase extends Dexie {
   jobCategories!: Table<JobCategory>;
   inspectionItems!: Table<InspectionItem>;
   recommendations!: Table<Recommendation>;
+  template!: Table<any>;
 
   constructor() {
     super("inspection-db");
-    this.version(5).stores({
+    this.version(7).stores({
       user: "++type",
       libraryItemCategories: "++id, name",
       libraryItems:
@@ -32,6 +33,7 @@ export class InspectionDatabase extends Dexie {
       inspectionItems:
         "++uuid, job_id, library_item_id, isCustom, [job_id+isPreviousItem+category]",
       recommendations: "++id",
+      template: "++type"
     });
   }
 }
