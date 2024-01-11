@@ -19,6 +19,7 @@
     "dexie": "^3.2.4",
     "framer-motion": "^10.16.4",
     "lexical": "^0.12.2",
+    "pdfjs-dist": "^4.0.379",
     "pdfmake": "^0.2.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

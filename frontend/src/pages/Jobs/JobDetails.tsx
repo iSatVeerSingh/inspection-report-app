@@ -45,7 +45,7 @@ const JobDetails = () => {
   };
 
   // const myReport = async () => {
-  //   const response = await fetch("/reports2.json");
+  //   const response = await fetch("/reports1.json");
   //   const report = await response.json();
 
   //   report.inspectionNotes?.forEach(async (note: string) => {
