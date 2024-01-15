@@ -2,7 +2,6 @@ import pdfMake from "pdfmake/build/pdfmake";
 import {
   Style,
   TDocumentDefinitions,
-  DynamicContent,
   Content,
   PageBreak,
   ContentStack,
@@ -56,25 +55,7 @@ const defaultStyle: Style = {
   fontSize: 11,
 };
 
-// const docDefinition: TDocumentDefinitions = {
-//   defaultStyle: {
-//     font: "Times",
-//   },
-//   content: [
-//     {
-//       text: "this is an example of pdf",
-//     },
-//     {
-//       text: [
-//         "This paragraph is defined as an array of elements to make it possible to ",
-//         { text: "restyle part of it and make it bigger ", fontSize: 15 },
-//         "than the rest.",
-//       ],
-//     },
-//   ],
-// };
-
-export const generatePdf = (
+export const generatePdf = async (
   job: Job,
   items: InspectionItem[],
   template: any
@@ -83,6 +64,7 @@ export const generatePdf = (
 
   const docDefinition: TDocumentDefinitions = {
     defaultStyle,
+    compress: true,
     ...metaData,
     content: [
       getTitlePage(job, template),

@@ -15,11 +15,15 @@ export const getBadRequestResponse = (
   );
 };
 
-export const getSuccessResponse = (data: any, status: number = 200) => {
+export const getSuccessResponse = (
+  data: any,
+  contentType?: string,
+  status: number = 200
+) => {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": contentType || "application/json",
     },
   });
 };

@@ -7,6 +7,8 @@ import {
   redirect,
   useLocation,
 } from "react-router-dom";
+import { GlobalContext } from "../context/globalContext";
+import DBWorker from "../worker/worker?worker";
 
 export const dashboardLoader: LoaderFunction = ({ request }) => {
   try {
@@ -30,49 +32,54 @@ export const dashboardLoader: LoaderFunction = ({ request }) => {
 const Dashboard = () => {
   const { pathname } = useLocation();
   const currentPath = pathname.split("/")[1];
+  const worker = new DBWorker();
 
   return (
-    <Grid
-      as="main"
-      gridTemplateColumns={"250px auto"}
-      h={"100vh"}
-      overflow={"hidden"}
-      bg={"app-bg"}
-    >
+    <GlobalContext.Provider value={{ worker }}>
       <Grid
-        bg={"main-bg"}
-        px={"3"}
-        shadow={"xs"}
-        gridTemplateRows={"60px auto"}
+        as="main"
+        gridTemplateColumns={"250px auto"}
+        h={"100vh"}
+        overflow={"hidden"}
+        bg={"app-bg"}
       >
-        <Flex gap={2} alignItems={"center"} py={3}>
-          <Avatar src="/logo.png" size={"sm"} />
-          <Text fontSize={"lg"}>Satveer Singh</Text>
-        </Flex>
-        <Flex direction={"column"} py={2} gap={2}>
-          {menuitems.map((item, index) => (
-            <Link to={item.path} key={index}>
-              <Flex
-                alignItems={"center"}
-                gap={2}
-                px="3"
-                py={2}
-                borderRadius={"full"}
-                bg={
-                  item.path === "/" + currentPath ? "primary.500" : "primary.50"
-                }
-                color={item.path === "/" + currentPath ? "white" : "text.700"}
-                fontSize={"lg"}
-              >
-                <item.icon boxSize={6} />
-                <Text as="span">{item.name}</Text>
-              </Flex>
-            </Link>
-          ))}
-        </Flex>
+        <Grid
+          bg={"main-bg"}
+          px={"3"}
+          shadow={"xs"}
+          gridTemplateRows={"60px auto"}
+        >
+          <Flex gap={2} alignItems={"center"} py={3}>
+            <Avatar src="/logo.png" size={"sm"} />
+            <Text fontSize={"lg"}>Satveer Singh</Text>
+          </Flex>
+          <Flex direction={"column"} py={2} gap={2}>
+            {menuitems.map((item, index) => (
+              <Link to={item.path} key={index}>
+                <Flex
+                  alignItems={"center"}
+                  gap={2}
+                  px="3"
+                  py={2}
+                  borderRadius={"full"}
+                  bg={
+                    item.path === "/" + currentPath
+                      ? "primary.500"
+                      : "primary.50"
+                  }
+                  color={item.path === "/" + currentPath ? "white" : "text.700"}
+                  fontSize={"lg"}
+                >
+                  <item.icon boxSize={6} />
+                  <Text as="span">{item.name}</Text>
+                </Flex>
+              </Link>
+            ))}
+          </Flex>
+        </Grid>
+        <Outlet />
       </Grid>
-      <Outlet />
-    </Grid>
+    </GlobalContext.Provider>
   );
 };
 

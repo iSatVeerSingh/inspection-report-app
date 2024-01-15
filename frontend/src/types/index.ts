@@ -92,7 +92,7 @@ export type InspectionItemForm = {
 
 export type InspectionItem = Partial<LibraryItem> & {
   id?: number;
-  uuid: string;
+  uuid?: string;
   job_id: number;
   library_item_id?: number | null;
   isPreviousItem?: 0 | 1 | boolean;
@@ -100,7 +100,7 @@ export type InspectionItem = Partial<LibraryItem> & {
   images?: string[] | File[] | string;
   note?: string;
   isCustom?: boolean;
-  pageBreak?: boolean
+  pageBreak?: boolean;
 };
 
 export type Recommendation = {

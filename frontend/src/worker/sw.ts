@@ -43,6 +43,11 @@ cleanupOutdatedCaches();
 //   initStatusController,
 //   "GET"
 // );
+// const channel = new BroadcastChannel("pdf-message");
+// channel.postMessage("hello form servicer");
+// channel.addEventListener("message", (e) => {
+//   console.log(e);
+// });
 
 // Setup user in indexeddb
 registerRoute(
@@ -182,8 +187,6 @@ registerRoute(
   generateReportController,
   "POST"
 );
-
-
 
 // Get Library Item Category
 registerRoute(

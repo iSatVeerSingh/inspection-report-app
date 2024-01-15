@@ -1,3 +1,4 @@
+declare let self: ServiceWorkerGlobalScope;
 // // // check init status
 // // export const initStatusController: RouteHandler = async () => {
 // //   try {
@@ -19,7 +20,7 @@ import { RouteHandler } from "workbox-core";
 import { getBadRequestResponse, getSuccessResponse } from "./response";
 import { DB } from "../db";
 import { InspectionItem, Job, JobStatus, LibraryItem } from "../types";
-import { generatePdf } from "../utils/pdf";
+import { generatePdf } from "../utils/reportPdf";
 
 // Setup user in indexeddb
 export const initUserController: RouteHandler = async ({ request }) => {
@@ -718,13 +719,63 @@ export const generateReportController: RouteHandler = async ({
       };
     }
   );
-  return getSuccessResponse(transaction);
 
-  // const pdf = await generatePdf(
-  //   transaction?.job!,
-  //   transaction!.items,
-  //   transaction?.template!
-  // );
+  const pdfBlob = (await generatePdf(
+    transaction?.job!,
+    transaction?.items! as InspectionItem[],
+    transaction?.template!
+  )) as Blob;
+
+  await DB.reports.put({ jobNumber, pdf: pdfBlob });
+
+  // const base64 = await new Promise((resolve) => {
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(pdfBlob as Blob);
+  //   reader.addEventListener("load", (e) => {
+  //     resolve(e.target?.result);
+  //   });
+  // });
+
+  // const pdfChannel = new BroadcastChannel("report-pdf");
+
+  // pdfChannel.postMessage({
+  //   type: "NEW_REPORT_PDF",
+  //   jobNumber,
+  //   pdf: pdfBlob,
+  // });
+
+  // console.log("waiting for worker message");
+  // const { success }: any = await new Promise((resolve, reject) => {
+  //   pdfChannel.addEventListener("message", (e) => {
+  //     console.log(e);
+  //     if (e.data.type === "PDF_SAVE_DONE") {
+  //       resolve(e.data);
+  //     } else {
+  //       reject();
+  //     }
+  //   });
+  // });
+
+  // pdfChannel.close();
+  // if (!success) {
+  //   return new Response(null, { status: 400 });
+  // }
+
+  return new Response(pdfBlob, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+    },
+  });
+
+  // await DB.reports.put({ jobNumber, pdf: arrayBuffer }, jobNumber);
+  // return new Response(JSON.stringify(data) as any, {
+  //   status: 200,
+  //   headers: {
+  //     // "Content-Type": "application/pdf",
+  //     "Content-Type": "application/json",
+  //   },
+  // });
 
   // return getSuccessResponse(pdf);
 

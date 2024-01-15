@@ -11,6 +11,7 @@ import AddInspectionItems from "../pages/Jobs/AddInspectionItems";
 import ViewAddedItems from "../pages/Jobs/ViewAddedItems";
 import ItemPreview from "../pages/Jobs/ItemPreview";
 import ReportPreview from "../pages/Jobs/ReportPreview";
+import Test from "../pages/Test";
 
 export default createBrowserRouter([
   {
@@ -48,8 +49,8 @@ export default createBrowserRouter([
       },
       {
         path: paths.REPORT_PREVIEW,
-        element: <ReportPreview />
-      }
+        element: <ReportPreview />,
+      },
     ],
   },
   {
@@ -59,5 +60,9 @@ export default createBrowserRouter([
   {
     path: "/init",
     element: <Init />,
+  },
+  {
+    path: "/test",
+    element: <Test />,
   },
 ]);

@@ -20,7 +20,7 @@ export const getResizedImagesBase64Main = async (
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
 
-      const base64Str = ctx.canvas.toDataURL("image/jpeg", 1);
+      const base64Str = ctx.canvas.toDataURL("image/jpeg", 0.8);
       resizedImages.push(base64Str);
     } else {
       base64Promises.push(getBase64String(imageFiles[i]));
