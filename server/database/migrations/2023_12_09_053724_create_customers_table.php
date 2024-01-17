@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
-            $table->uuid('uuid')->unique()->nullable();
             $table->string('nameOnReport')->nullable();
             $table->string('name')->default('');
             $table->string('email')->default('');

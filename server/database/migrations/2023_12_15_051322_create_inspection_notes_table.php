@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inspection_notes', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
-            $table->foreignId('category_id')->nullable()->constrained('job_categories');
+            $table->foreignUuid('category_id')->nullable()->constrained('job_categories');
             $table->text('text');
             $table->timestamps();
         });

@@ -31,7 +31,7 @@ class JobSeeder extends Seeder
 
         foreach ($categories as $key => $category) {
             $jobCategory = new JobCategory([
-                'uuid' => $category['uuid'],
+                'id' => $category['uuid'],
                 'name' => $category['name'],
             ]);
 
@@ -54,10 +54,10 @@ class JobSeeder extends Seeder
 
         foreach ($allJobs as $key => $serviceJob) {
             $job = new Job();
-            $job['uuid'] = $serviceJob['uuid'];
+            $job['id'] = $serviceJob['uuid'];
             $job['jobNumber'] = $serviceJob['generated_job_id'];
             if ($serviceJob['category_uuid'] !== "") {
-                $jobCategory = JobCategory::where('uuid', $serviceJob['category_uuid'])->first();
+                $jobCategory = JobCategory::find($serviceJob['category_uuid']);
                 $job['category_id'] = $jobCategory['id'];
             }
             $job['siteAddress'] = $serviceJob['job_address'];
@@ -65,7 +65,7 @@ class JobSeeder extends Seeder
             $job['description'] = $serviceJob['job_description'];
 
             $companyUuid = $serviceJob['company_uuid'];
-            if (!Customer::where('uuid', $companyUuid)->exists()) {
+            if (!Customer::where('id', $companyUuid)->exists()) {
 
                 $contacts = array_filter($companies, function ($company) use ($companyUuid) {
                     return $company['company_uuid'] === $companyUuid;
@@ -97,14 +97,14 @@ class JobSeeder extends Seeder
                     }
                 }
 
-                $customerData['uuid'] = $companyUuid;
+                $customerData['id'] = $companyUuid;
                 $customerData['billingAddress'] = $serviceJob['billing_address'];
 
                 $customerData->save();
 
                 $job['customer_id'] = $customerData['id'];
             } else {
-                $customerData = Customer::where('uuid', $companyUuid)->first();
+                $customerData = Customer::find($companyUuid);
                 $job['customer_id'] = $customerData['id'];
             }
 
@@ -121,7 +121,7 @@ class JobSeeder extends Seeder
             };
 
             if (count($activities) !== 0) {
-                $inspector = User::where('uuid', $activities[0]['staff_uuid'])->first();
+                $inspector = User::find($activities[0]['staff_uuid']);
                 if ($inspector) {
                     $job['inspector_id'] = $inspector['id'];
                 }

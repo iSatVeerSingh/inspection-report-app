@@ -36,7 +36,7 @@ class UserSeeder extends Seeder
 
             if ($role !== "") {
                 $user = new User();
-                $user['uuid'] = $staff['uuid'];
+                $user['id'] = $staff['uuid'];
                 $user['name'] = trim($staff['first'] . " " . $staff['last']);
                 $user['email'] = $staff['email'];
                 if ($staff['mobile'] !== "") {

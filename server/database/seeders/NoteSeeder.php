@@ -19,7 +19,6 @@ class NoteSeeder extends Seeder
         foreach ($allNotes as $key => $note) {
             $libNote = new InspectionNote([
                 'text' => $note,
-                'category_id' => 1
             ]);
             $libNote->save();
         }

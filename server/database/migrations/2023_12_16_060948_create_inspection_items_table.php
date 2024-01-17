@@ -12,11 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inspection_items', function (Blueprint $table) {
-            $table->id();
-            $table->uuid()->unique();
+            $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
-            $table->foreignId('report_id')->constrained('reports');
-            $table->foreignId('library_item_id')->nullable()->constrained('library_items');
+            $table->foreignUuid('library_item_id')->nullable()->constrained('library_items');
             $table->json('images')->nullable();
             $table->string('note')->nullable();
             // if custom item
@@ -28,7 +26,7 @@ return new class extends Migration
 
             // is this belongs to previous item
             $table->boolean('isPreviousItem')->default(false);
-            $table->foreignId('previous_item_id')->nullable()->constrained('inspection_items');
+            $table->foreignUuid('previous_item_id')->nullable()->constrained('inspection_items');
             // $table->foreignId('previous_job_id')->nullable()->constrained('jobs');
             // $table->string('summary')->nullable();
             $table->timestamps();

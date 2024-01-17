@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jobs', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
-            $table->uuid('uuid')->unique()->nullable();
             $table->string('jobNumber')->unique();
-            $table->foreignId('category_id')->nullable()->constrained('job_categories');
-            $table->foreignId('customer_id')->constrained('customers');
-            $table->foreignId('inspector_id')->nullable()->constrained('users');
+            $table->foreignUuid('category_id')->nullable()->constrained('job_categories');
+            $table->foreignUuid('customer_id')->constrained('customers');
+            $table->foreignUuid('inspector_id')->nullable()->constrained('users');
             $table->dateTime('startsAt')->nullable();
             $table->string('siteAddress');
             $table->string('status');

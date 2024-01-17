@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('job_categories', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
-            $table->uuid()->nullable()->unique();
             $table->string('name')->unique();
             $table->string('type')->unique()->nullable();
             $table->string('stageOfWorks')->nullable();

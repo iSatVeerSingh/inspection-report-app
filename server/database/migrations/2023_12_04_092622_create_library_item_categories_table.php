@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('library_item_categories', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
             $table->string('name')->unique();
             $table->timestamps();
