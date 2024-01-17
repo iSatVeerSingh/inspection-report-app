@@ -62,6 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
         ->except(['show'])
         ->middleware(EnsureUserIsOwnerOrAdmin::class);
 
+    Route::apiResource('/jobs', JobController::class)->only(['index', 'show']);
+
     Route::get('/install-inspection-notes', [InspectionNoteController::class, 'install']);
 
     Route::get('/install-job-categories', [JobCategoryController::class, 'install']);

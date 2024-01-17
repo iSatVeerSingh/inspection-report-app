@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
 class Job extends Model
@@ -35,7 +36,6 @@ class Job extends Model
         'startsAt' => 'datetime',
         'completedAt' => 'datetime',
         'inspectionNotes' => 'array',
-        'pdf' => 'blob'
     ];
 
     protected function serializeDate(DateTimeInterface $date)
@@ -92,5 +92,15 @@ class Job extends Model
         return $this->belongsTo(User::class, 'inspector_id')->withDefault([
             'name' => 'Not Assigned'
         ]);
+    }
+
+    /**
+     * Get all of the inspectionItems for the Job
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inspectionItems(): HasMany
+    {
+        return $this->hasMany(InspectionItem::class, 'job_id');
     }
 }

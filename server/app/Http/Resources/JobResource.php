@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\InspectionItem;
+use App\Models\LibraryItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,16 +31,27 @@ class JobResource extends JsonResource
                 "phone" => $customer["phone"]
             ],
             "siteAddress" => $this['siteAddress'],
-            "startsAt" => $this['startsAt']->format('Y-m-d'),
-            "startTime" => $this['startsAt']->format('h:i A'),
+            "startsAt" => $this['startsAt'] === null ? null : $this['startsAt']->format('Y-m-d h:i A'),
             "status" => $this['status'],
-            "completedAt" => $this['completedAt'] === null ? null : $this['completedAt'],
+            "completedAt" => $this['completedAt'] === null ? null : $this['completedAt']->format('Y-m-d h:i A'),
             "description" => $this["description"],
             "inspector" => $this->inspector['name'],
             "inspector_id" => $this['inspector_id'],
             "type" => $this->category['type'],
             "stageOfWorks" => $this->category['stageOfWorks']
         ];
+
+        if ($request->query('items') === 'true') {
+            $inspectionItems = $this->inspectionItems()
+                ->where('active', true)->get()
+                ->map(function (InspectionItem $inspectionItem) {
+                    $libraryItemCategory = LibraryItem::find($inspectionItem['library_item_id'])->category['name'];
+                    $inspectionItem['category'] = $libraryItemCategory;
+                    return $inspectionItem;
+                });
+
+            $job['inspectionItems'] = $inspectionItems;
+        }
 
         return $job;
     }

@@ -6,6 +6,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class InspectionItem extends Model
 {
@@ -34,6 +35,6 @@ class InspectionItem extends Model
 
     protected function serializeDate(DateTimeInterface $date)
     {
-        return $date->format('Y-m-d');
+        return $date->format('Y-m-d h:i A');
     }
 }

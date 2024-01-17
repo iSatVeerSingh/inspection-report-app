@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignUuid('inspector_id')->nullable()->constrained('users');
             $table->dateTime('startsAt')->nullable();
             $table->string('siteAddress');
-            $table->string('status');
+            $table->string('status')->index();
             $table->dateTime('completedAt')->nullable();
             $table->string('description')->nullable();
             $table->json('inspectionNotes')->nullable();
