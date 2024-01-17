@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('status');
             $table->dateTime('completedAt')->nullable();
             $table->string('description')->nullable();
+            $table->json('inspectionNotes')->nullable();
+            $table->string('recommendation')->nullable();
+            $table->binary('pdf')->nullable();
             $table->timestamps();
         });
     }

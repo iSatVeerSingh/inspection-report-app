@@ -14,7 +14,7 @@ class InspectionItem extends Model
     protected $fillable = [
         'uuid',
         'active',
-        'report_id',
+        'job_id',
         'library_item_id',
         'images',
         'note',

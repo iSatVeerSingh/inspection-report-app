@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('inspection_items', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
+            $table->foreignUuid('job_id')->constrained('jobs');
             $table->foreignUuid('library_item_id')->nullable()->constrained('library_items');
             $table->json('images')->nullable();
-            $table->string('note')->nullable();
+            $table->text('note')->nullable();
             // if custom item
             $table->boolean('isCustom')->default(false);
             $table->string('name')->nullable();

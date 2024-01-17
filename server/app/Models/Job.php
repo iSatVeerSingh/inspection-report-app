@@ -25,12 +25,17 @@ class Job extends Model
         'status',
         'completedAt',
         'description',
+        'inspectionNotes',
+        'recommendation',
+        'pdf'
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'startsAt' => 'datetime',
         'completedAt' => 'datetime',
+        'inspectionNotes' => 'array',
+        'pdf' => 'blob'
     ];
 
     protected function serializeDate(DateTimeInterface $date)
