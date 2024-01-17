@@ -1,5 +1,5 @@
 export const getResizedImagesBase64Main = async (
-  imageFiles: File[]
+  imageFiles: File[] | FileList
 ): Promise<string[]> => {
   const resizedImages = [];
   const base64Promises = [];

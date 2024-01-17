@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Card from "../../components/Card";
 import PageLayout from "../../layouts/PageLayout";
-import { NavigationType, useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import clientApi from "../../api/clientApi";
 import { InspectionItem, Job } from "../../types";
@@ -10,10 +10,8 @@ import { Box, Grid, Heading, Text, useToast } from "@chakra-ui/react";
 import MiniDetail from "../../components/MiniDetail";
 import Loading from "../../components/Loading";
 import ButtonOutline from "../../components/ButtonOutline";
-import { useGlobalContext } from "../../context/globalContext";
 
 const ReportPreview = () => {
-  const { worker }: { worker: Worker } = useGlobalContext();
   const { jobNumber } = useParams();
   const { state: job }: { state: Job } = useLocation();
   const [generating, setGenerating] = useState(false);

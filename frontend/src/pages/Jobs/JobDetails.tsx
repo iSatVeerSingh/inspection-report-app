@@ -1,14 +1,31 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import PageLayout from "../../layouts/PageLayout";
 import Card from "../../components/Card";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clientApi from "../../api/clientApi";
 import { Job, JobStatus } from "../../types";
 import Loading from "../../components/Loading";
-import { Box, Flex, Grid, Heading, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  Heading,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import MiniDetail from "../../components/MiniDetail";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import ButtonOutline from "../../components/ButtonOutline";
+import FormInput from "../../components/FormInput";
+import { LocationIcon, UserIcon } from "../../icons";
+import { inspectionApi } from "../../api";
 
 const JobDetails = () => {
   const { jobNumber } = useParams();
@@ -16,6 +33,11 @@ const JobDetails = () => {
   const [loading, setLoading] = useState(true);
   const [job, setJob] = useState<Job | null>(null);
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const prevJobRef = useRef<HTMLInputElement>(null);
+  const [searching, setSearching] = useState(false);
+  const [online, setOnline] = useState(false);
+  const [previousJob, setPreviousJob] = useState<Job | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -44,8 +66,44 @@ const JobDetails = () => {
     setJob({ ...job, status: JobStatus.IN_PROGRESS });
   };
 
+  const findPrevJob = async () => {
+    const prevJob = prevJobRef.current?.value.trim();
+    if (!prevJob || prevJob === "") {
+      return;
+    }
+
+    if (prevJob === jobNumber) {
+      return;
+    }
+
+    setSearching(true);
+
+    const response = await clientApi.get(`/previous-job?jobNumber=${prevJob}`);
+    if (response.status !== 200) {
+      setOnline(true);
+
+      const apiResponse = await inspectionApi.get(`/jobs?jobNumber=${prevJob}`);
+      if (apiResponse.status !== 200) {
+        toast({
+          title: apiResponse.data.message,
+          duration: 4000,
+          status: "error",
+        });
+        setSearching(false);
+        return;
+      }
+
+      setPreviousJob(apiResponse.data.data);
+      setSearching(false);
+      return;
+    }
+
+    setPreviousJob(response.data);
+    setSearching(false);
+  };
+
   // const myReport = async () => {
-  //   const response = await fetch("/reports1.json");
+  //   const response = await fetch("/reports3.json");
   //   const report = await response.json();
 
   //   report.inspectionNotes?.forEach(async (note: string) => {
@@ -109,8 +167,7 @@ const JobDetails = () => {
                 property="Customer phone"
                 value={job?.customer.phone!}
               />
-              <MiniDetail property="Date" value={job?.startsAt!} />
-              <MiniDetail property="Time" value={job?.startTime!} />
+              <MiniDetail property="Date & Time" value={job?.startsAt!} />
               <MiniDetail property="Site Address" value={job?.siteAddress!} />
               <MiniDetail property="Status" value={job?.status!} />
               <MiniDetail
@@ -175,6 +232,24 @@ const JobDetails = () => {
                     fontWeight={"semibold"}
                     color={"text.700"}
                   >
+                    Previous Report Items
+                  </Heading>
+                  <MiniDetail
+                    noChange
+                    property="Items from previous report"
+                    value={(job?.inspectionItems as number) || 0}
+                  />
+                  <ButtonPrimary onClick={onOpen}>
+                    Add Other Job Items
+                  </ButtonPrimary>
+                </Box>
+                <Box mt={4}>
+                  <Heading
+                    as="h3"
+                    fontSize={"xl"}
+                    fontWeight={"semibold"}
+                    color={"text.700"}
+                  >
                     New Inspection Items
                   </Heading>
                   <MiniDetail
@@ -230,6 +305,77 @@ const JobDetails = () => {
           </Card>
         </>
       )}
+
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        closeOnOverlayClick={false}
+        size={"lg"}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Find previous report / job</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormInput
+              id="jobNumber"
+              name="jobNumber"
+              ref={prevJobRef}
+              placeholder="Enter job number"
+            />
+            <ButtonPrimary
+              mt={3}
+              onClick={findPrevJob}
+              isLoading={searching}
+              loadingText="Searching"
+            >
+              Search
+            </ButtonPrimary>
+            {searching && online && (
+              <Text>Job not found offline. Fetching from server</Text>
+            )}
+            {previousJob && !searching && (
+              <Link
+                to={`./add-previous-items/${previousJob.jobNumber}`}
+                state={{ job, online, previousJob }}
+              >
+                <Box
+                  bg={"main-bg"}
+                  p={3}
+                  borderRadius={"xl"}
+                  shadow={"xs"}
+                  border={"stroke"}
+                  mt={2}
+                >
+                  <Box>
+                    <Text
+                      fontSize={"lg"}
+                      fontWeight={"medium"}
+                      color={"text.700"}
+                    >
+                      #{previousJob.jobNumber} - {previousJob.category}
+                    </Text>
+                    <Flex alignItems={"center"} gap={2}>
+                      <Text as="span">Completed At:</Text>
+                      <Text as={"span"} color={"text.500"} fontSize={"lg"}>
+                        {previousJob.completedAt}
+                      </Text>
+                    </Flex>
+                  </Box>
+                  <Flex direction={"column"} color={"text.600"}>
+                    <Text minW={"220px"} display={"flex"} alignItems={"center"}>
+                      <UserIcon boxSize={5} /> {previousJob.customer.name}
+                    </Text>
+                    <Text display={"flex"} alignItems={"center"}>
+                      <LocationIcon boxSize={6} /> {previousJob.siteAddress}
+                    </Text>
+                  </Flex>
+                </Box>
+              </Link>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </PageLayout>
   );
 };

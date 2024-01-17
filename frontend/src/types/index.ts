@@ -18,23 +18,23 @@ export type User = UserForm & {
 };
 
 export type Job = {
-  id: number;
+  id: string;
   jobNumber: string;
   type?: string | null;
-  category_id: number;
+  category_id: string;
   category: string;
   stageOfWorks?: string | null;
   customer: Customer;
   siteAddress: string;
   startsAt: string;
-  startTime: string;
   status: JobStatus;
-  completedAt: Date | string | null;
+  completedAt: string | null;
   description: string;
   inspector: string;
-  inspector_id: number;
+  inspector_id: string;
   inspectionNotes?: string[];
   inspectionItems?: InspectionItem[] | number;
+  previousJobs: string[];
   recommendation?: string;
 };
 

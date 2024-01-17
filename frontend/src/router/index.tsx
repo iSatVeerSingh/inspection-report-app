@@ -12,6 +12,7 @@ import ViewAddedItems from "../pages/Jobs/ViewAddedItems";
 import ItemPreview from "../pages/Jobs/ItemPreview";
 import ReportPreview from "../pages/Jobs/ReportPreview";
 import Test from "../pages/Test";
+import AddItemsPreviousJob from "../pages/Jobs/AddItemsPreviousJob";
 
 export default createBrowserRouter([
   {
@@ -50,6 +51,10 @@ export default createBrowserRouter([
       {
         path: paths.REPORT_PREVIEW,
         element: <ReportPreview />,
+      },
+      {
+        path: paths.ADD_PREVIOUS_JOB_ITEMS,
+        element: <AddItemsPreviousJob />,
       },
     ],
   },

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { redirect } from "react-router-dom";
 const BASE_URL = "/api";
 
 export const inspectionApi = axios.create({
@@ -20,8 +21,20 @@ inspectionApi.interceptors.request.use((config) => {
 
 inspectionApi.interceptors.response.use(
   (response) => response,
-  (error: any) =>
-    error.code === "ERR_NETWORK"
-      ? { data: { message: "No Internet Connection. You are offline" } }
-      : { data: { message: error.message } }
+  (error: any) => {
+    if (error.code === "ERR_NETWORK") {
+      return { data: { message: "No Internet Connection. You are offline" } };
+    }
+
+    if (error.response?.status === 401) {
+      redirect("/login");
+      return;
+    }
+
+    return {
+      data: {
+        message: error.message,
+      },
+    };
+  }
 );

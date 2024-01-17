@@ -4,9 +4,11 @@ export const ADD_NOTES = JOB_DETAILS + "/add-notes";
 export const VIEW_EDIT_NOTES = JOB_DETAILS + "/all-notes";
 export const ADD_ITEMS = JOB_DETAILS + "/add-items";
 export const VIEW_EDIT_ITEMS = JOB_DETAILS + "/all-items";
-export const INSPECTION_ITEM_PREVIEW = VIEW_EDIT_ITEMS+ "/:uuid";
+export const INSPECTION_ITEM_PREVIEW = VIEW_EDIT_ITEMS + "/:uuid";
+export const ADD_PREVIOUS_JOB_ITEMS =
+  JOB_DETAILS + "/add-previous-items/:prevJob";
 
-export const REPORT_PREVIEW = JOB_DETAILS + "/preview"
+export const REPORT_PREVIEW = JOB_DETAILS + "/preview";
 
 // Library items
 export const LIBRARY_ITEMS = "/library-items";

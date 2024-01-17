@@ -428,7 +428,8 @@ export const addInspectionItemsController: RouteHandler = async ({
           images: body.images,
           isCustom: body.isCustom,
           note: body.note,
-          isPreviousItem: 0,
+          isPreviousItem: body.isPreviousItem ? 1 : 0,
+          previous_job_id: body.previous_job_id,
         };
 
         if (body.isCustom) {
@@ -662,132 +663,124 @@ export const generateReportController: RouteHandler = async ({
     return getBadRequestResponse();
   }
 
-  const itemHeights = body.itemsHeights as {
-    id: number;
-    height: number;
-    pageBreak?: boolean;
-  }[];
+  try {
+    const itemHeights = body.itemsHeights as {
+      id: number;
+      height: number;
+      pageBreak?: boolean;
+    }[];
 
-  const transaction = await DB.transaction(
-    "rw",
-    DB.jobs,
-    DB.inspectionItems,
-    DB.libraryItems,
-    DB.template,
-    async () => {
-      const job = await DB.jobs.get(jobNumber);
-      if (!job) {
-        return null;
-      }
-
-      const inspectionItems = await DB.inspectionItems
-        .where({ job_id: job.id })
-        .toArray();
-
-      const allItemsWithLibrary: InspectionItem[] = [];
-      for (let i = 0; i < inspectionItems.length; i++) {
-        const item = inspectionItems[i];
-        if (!item.isCustom) {
-          const libItem = await DB.libraryItems.get(item.library_item_id!);
-          if (libItem) {
-            allItemsWithLibrary.push({
-              ...item,
-              ...libItem,
-            });
-          }
-        } else {
-          allItemsWithLibrary.push(item);
+    const transaction = await DB.transaction(
+      "rw",
+      DB.jobs,
+      DB.inspectionItems,
+      DB.libraryItems,
+      DB.template,
+      async () => {
+        const job = await DB.jobs.get(jobNumber);
+        if (!job) {
+          return null;
         }
-      }
 
-      const finalItems = itemHeights.map((item) => {
-        const inspectionItem = allItemsWithLibrary.find(
-          (insItem) => insItem.id === item.id
-        );
+        const inspectionItems = await DB.inspectionItems
+          .where({ job_id: job.id })
+          .toArray();
+
+        const allItemsWithLibrary: InspectionItem[] = [];
+        for (let i = 0; i < inspectionItems.length; i++) {
+          const item = inspectionItems[i];
+          if (!item.isCustom) {
+            const libItem = await DB.libraryItems.get(item.library_item_id!);
+            if (libItem) {
+              allItemsWithLibrary.push({
+                ...item,
+                ...libItem,
+              });
+            }
+          } else {
+            allItemsWithLibrary.push(item);
+          }
+        }
+
+        const finalItems = itemHeights.map((item) => {
+          const inspectionItem = allItemsWithLibrary.find(
+            (insItem) => insItem.id === item.id
+          );
+          return {
+            ...inspectionItem,
+            pageBreak: item.pageBreak,
+          };
+        });
+
+        const template = await DB.template.get("template");
+
         return {
-          ...inspectionItem,
-          pageBreak: item.pageBreak,
+          job,
+          items: finalItems,
+          template,
         };
-      });
+      }
+    );
 
-      const template = await DB.template.get("template");
+    const pdfBlob = (await generatePdf(
+      transaction?.job!,
+      transaction?.items! as InspectionItem[],
+      transaction?.template!
+    )) as Blob;
 
-      return {
-        job,
-        items: finalItems,
-        template,
-      };
+    await DB.reports.put({ jobNumber, pdf: pdfBlob });
+
+    return new Response(pdfBlob, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+      },
+    });
+  } catch (err) {
+    return getBadRequestResponse();
+  }
+};
+
+// Get Previous report
+export const getPreviousReportController: RouteHandler = async ({ url }) => {
+  const jobNumber = url.searchParams.get("jobNumber");
+  if (!jobNumber) {
+    return getBadRequestResponse();
+  }
+
+  try {
+    const job = await DB.jobs.get(jobNumber);
+    if (!job) {
+      return getBadRequestResponse("Job not found", 404);
     }
-  );
+    return getSuccessResponse(job);
+  } catch (err: any) {
+    return getBadRequestResponse(err);
+  }
+};
 
-  const pdfBlob = (await generatePdf(
-    transaction?.job!,
-    transaction?.items! as InspectionItem[],
-    transaction?.template!
-  )) as Blob;
+// Get previous job items
+export const getPreviousReportItemsController: RouteHandler = async ({
+  url,
+}) => {
+  const jobNumber = url.searchParams.get("jobNumber");
+  if (!jobNumber) {
+    return getBadRequestResponse();
+  }
 
-  await DB.reports.put({ jobNumber, pdf: pdfBlob });
+  try {
+    const job = await DB.jobs.get(jobNumber);
+    if (!job) {
+      return getBadRequestResponse("Job not found", 404);
+    }
 
-  // const base64 = await new Promise((resolve) => {
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(pdfBlob as Blob);
-  //   reader.addEventListener("load", (e) => {
-  //     resolve(e.target?.result);
-  //   });
-  // });
-
-  // const pdfChannel = new BroadcastChannel("report-pdf");
-
-  // pdfChannel.postMessage({
-  //   type: "NEW_REPORT_PDF",
-  //   jobNumber,
-  //   pdf: pdfBlob,
-  // });
-
-  // console.log("waiting for worker message");
-  // const { success }: any = await new Promise((resolve, reject) => {
-  //   pdfChannel.addEventListener("message", (e) => {
-  //     console.log(e);
-  //     if (e.data.type === "PDF_SAVE_DONE") {
-  //       resolve(e.data);
-  //     } else {
-  //       reject();
-  //     }
-  //   });
-  // });
-
-  // pdfChannel.close();
-  // if (!success) {
-  //   return new Response(null, { status: 400 });
-  // }
-
-  return new Response(pdfBlob, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/pdf",
-    },
-  });
-
-  // await DB.reports.put({ jobNumber, pdf: arrayBuffer }, jobNumber);
-  // return new Response(JSON.stringify(data) as any, {
-  //   status: 200,
-  //   headers: {
-  //     // "Content-Type": "application/pdf",
-  //     "Content-Type": "application/json",
-  //   },
-  // });
-
-  // return getSuccessResponse(pdf);
-
-  // if (!transaction) {
-  //   return getBadRequestResponse();
-  // }
-
-  // try {
-
-  // } catch (err) {
-  //   return getBadRequestResponse();
-  // }
+    const previousItems = await DB.inspectionItems
+      .where({ job_id: job.id })
+      .toArray();
+    return getSuccessResponse({ job, items: previousItems });
+  } catch (err: any) {
+    return getBadRequestResponse(err);
+  }
 };
 
 // // Get Library items

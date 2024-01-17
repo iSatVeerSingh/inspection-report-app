@@ -17,6 +17,8 @@ import {
   getJobsController,
   getLibraryItemCategoriesController,
   getLibraryItemIndexController,
+  getPreviousReportController,
+  getPreviousReportItemsController,
   getReportDetailsController,
   initInspectionNotesController,
   initJobCategoriesController,
@@ -186,6 +188,20 @@ registerRoute(
   ({ url }) => url.pathname === "/client/jobs/generate-report",
   generateReportController,
   "POST"
+);
+
+// Get Previous Job
+registerRoute(
+  ({ url }) => url.pathname === "/client/previous-job",
+  getPreviousReportController,
+  "GET"
+);
+
+// Get Previous Job items
+registerRoute(
+  ({ url }) => url.pathname === "/client/previous-job/items",
+  getPreviousReportItemsController,
+  "GET"
 );
 
 // Get Library Item Category
