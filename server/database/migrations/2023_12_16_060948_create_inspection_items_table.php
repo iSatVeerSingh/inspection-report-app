@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->boolean('active')->default(true)->index();
             $table->foreignUuid('job_id')->constrained('jobs');
-            $table->foreignUuid('library_item_id')->nullable()->constrained('library_items');
+            $table->foreignUuid('item_id')->nullable()->constrained('items');
             $table->json('images')->nullable();
             $table->text('note')->nullable();
             // if custom item

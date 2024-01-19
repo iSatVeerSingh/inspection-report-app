@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class LibraryItem extends Model
+class Item extends Model
 {
     use HasFactory, HasUuids;
 
@@ -37,6 +37,6 @@ class LibraryItem extends Model
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(LibraryItemCategory::class, 'category_id');
+        return $this->belongsTo(ItemCategory::class, 'category_id');
     }
 }

@@ -18,6 +18,8 @@ use App\Models\LibraryItem;
 use App\Models\LibraryItemCategory;
 use App\Models\Report;
 use App\Models\User;
+use App\Utils\ReportPdf;
+use Codedge\Fpdf\Fpdf\Fpdf;
 use Dotenv\Util\Regex;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -81,146 +83,99 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/demo', function () {
-    $job = Job::where('uuid', '0d5ca989-9518-4380-b64a-1e5ac5cfbccb')->first();
-    $job['active'] = true;
-    $job->save();
-    return $job;
-    // return date('Y-m-d h:i A');
+    $pdf = new ReportPdf('P', 'pt');
+    $pdf->MakePdf();
+    // $tagvs = array('p' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)));
+    $tagvs = [
+        'p' => [
+            0 => ['h' => 0, 'n' => 0],
+            1 => ['h' => 0, 'n' => 0]
+        ]
+    ];
+    $pdf->setHtmlVSpace($tagvs);
+    $pdf->setAutoPageBreak(true);
 
+    $inspectionItems = InspectionItem::where("job_id", "b6b33735-f2f5-4606-b7ed-1e95cf121cab")->get();
+    foreach ($inspectionItems as $i => $item) {
 
-    // $servicem8Url = env('SERVICEM8_BASEURL');
-    // $username = env('SERVICEM8_EMAIL');
-    // $password = env('SERVICEM8_PASSWORD');
+        $libItem = LibraryItem::find($item['library_item_id']);
+        $openingParagraphs = json_decode($libItem['openingParagraph']);
+        $closingParagraphs = json_decode($libItem['closingParagraph']);
+        $images = $item['images'];
 
-    // $jobsResponse = Http::withBasicAuth($username, $password)
-    //     ->get($servicem8Url . "/job.json?%24filter=edit_date%20gt%20'2024-01-03 00:00:00'")
-    //     ->json();
+        $openingParaHtml = "";
+        foreach ($openingParagraphs as $paragraph) {
+            $paraText = "";
+            $spans = $paragraph->text;
+            foreach ($spans as $span) {
+                $spanText = $span->text;
+                if ($span->bold) {
+                    $spanText = '<b>' . $spanText . '</b>';
+                }
+                if ($span->italics) {
+                    $spanText = '<i>' . $spanText . '</i>';
+                }
+                $paraText = $paraText . $spanText;
+            }
+            $openingParaHtml = $openingParaHtml . '<p>' . $paraText . '</p>';
+        }
 
-    // $allJobs = array_filter($jobsResponse, function ($job) {
-    //     return $job['status'] === "Work Order";
-    // });
+        $row = "";
+        $imgTableTemp = '';
+        foreach ($images as $key => $img) {
+            $imgEle = '<td><img src="' . $img . '" style="display: block; width: 200pt; height: 200pt;"></td>';
+            $row = $row . $imgEle;
 
+            if ($key % 2 !== 0) {
+                $imgTableTemp = $imgTableTemp . '<tr>' . $row . '</tr>';
+                $row = "";
+            }
 
-    // // check if job exists
-    // $existingJobs = [];
-    // foreach ($allJobs as $key => $serviceJob) {
-    //     if (Job::where("uuid", $serviceJob['uuid'])->exists()) {
-    //         // check if job is deleted in servicem8 or not
-    //         if ($serviceJob['active'] === 0) {
-    //             // if job is deleted
-    //             $job = Job::where("uuid", $serviceJob['uuid'])->first();
-    //             $job->update(['active'] === false);
-    //             array_push($existingJobs, [
-    //                 'deleted' => $job,
-    //                 'service' => $serviceJob
-    //             ]);
-    //         } else {
-    //             $acitvityResponse = Http::withBasicAuth($username, $password)
-    //                 ->get($servicem8Url . "/jobactivity.json?%24filter=job_uuid%20eq%20'" . $serviceJob['uuid'] . "'")
-    //                 ->json();
+            if ($key % 2 === 0 && $key === count($images) - 1) {
+                $imgTableTemp = $imgTableTemp . '<tr>' . $row . '</tr>';
+            }
+        }
 
-    //             $activities = [];
-    //             foreach ($acitvityResponse as $key => $activity) {
-    //                 if ($activity['active'] === 1 && $activity['activity_was_scheduled'] === 1) {
-    //                     array_push($activities, $activity);
-    //                     break;
-    //                 }
-    //             };
+        $imgTable = '<table><tbody>' . $imgTableTemp . '</tbody></table>';
 
-    //             if (count($activities) !== 0) {
-    //                 $inspector = User::where('uuid', $activities[0]['staff_uuid'])->first();
-    //                 $job = Job::where("uuid", $serviceJob['uuid'])->first();
+        $embeddedImgEle = "";
+        if ($libItem['embeddedImage']) {
+            $embeddedImgEle = '<img src="' . $libItem['embeddedImage'] . '" style="display: block; width: 200pt; height: 200pt;">';
+        }
 
-    //                 if ($job['inspector_id'] !== $inspector['id']) {
-    //                     $job['inspector_id'] = $inspector['id'];
-    //                 }
-    //                 $job['startsAt'] = new DateTime($activities[0]["start_date"]);
-    //                 $job->save();
-    //             }
-    //         }
-    //     } elseif ($serviceJob['active'] === 1) {
-    //         $job = new Job();
-    //         $job['uuid'] = $serviceJob['uuid'];
-    //         $job['jobNumber'] = $serviceJob['generated_job_id'];
-    //         if ($serviceJob['category_uuid'] !== "") {
-    //             $jobCategory = JobCategory::where('uuid', $serviceJob['category_uuid'])->first();
-    //             $job['category_id'] = $jobCategory['id'];
-    //         }
-    //         $job['siteAddress'] = $serviceJob['job_address'];
-    //         $job['status'] = $serviceJob['status'];
-    //         $job['description'] = $serviceJob['job_description'];
+        $closingParaHtml = "";
+        foreach ($closingParagraphs as $paragraph) {
+            $paraText = "";
+            $spans = $paragraph->text;
+            foreach ($spans as $span) {
+                $spanText = $span->text;
+                if ($span->bold) {
+                    $spanText = '<b>' . $spanText . '</b>';
+                }
+                if ($span->italics) {
+                    $spanText = '<i>' . $spanText . '</i>';
+                }
+                $paraText = $paraText . $spanText;
+            }
+            $closingParaHtml = $closingParaHtml . '<p>' . $paraText . '</p>';
+        }
+        $itemText = $openingParaHtml . $imgTable  . $embeddedImgEle  .  $closingParaHtml;
 
-    //         if (!Customer::where('uuid', $serviceJob['company_uuid'])->exists()) {
+        $table = '<table style="width: 495pt; border: 1pt solid black;">
+    <tbody>
+    <tr style="vertical-align: top;">
+    <td style="width: 30pt;">' . $i + 1 . '</td>
+    <td style="width: 470pt; padding-top: 0; padding-bottom: 0;">'
+            . $itemText .
+            '</td>
+    </tr>
+    </tbody>
+    </table>';
 
-    //             // Get Customer or company contacts
-    //             $contacts = Http::withBasicAuth($username, $password)
-    //                 ->get($servicem8Url . "/companycontact.json?%24filter=company_uuid%20eq%20'" . $serviceJob['company_uuid'] . "'")
-    //                 ->json();
-
-    //             $customerData = new Customer();
-
-    //             foreach ($contacts as $key => $contact) {
-    //                 if (str_contains(strtolower($contact['type']), "report")) {
-    //                     $customerData['nameOnReport'] = trim($contact['first'] . " " . $contact['last']);
-    //                 }
-
-    //                 if (str_contains(strtolower($contact['type']), "billing")) {
-    //                     $customerData['name'] = trim($contact['first'] . " " . $contact['last']);
-    //                     $customerData['email'] = strtolower($contact['email']);
-    //                     $customerData['phone'] = $contact['mobile'];
-    //                 }
-
-    //                 if (str_contains(strtolower($contact['type']), "builder")) {
-    //                     $customerData['builder'] = trim($contact['first'] . " " . $contact['last']);
-    //                     $customerData['builderEmail'] = strtolower($contact['email']);
-    //                     $customerData['builderPhone'] = $contact['mobile'];
-    //                 }
-
-    //                 if (str_contains(strtolower($contact['type']), "supervisor")) {
-    //                     $customerData['supervisor'] = trim($contact['first'] . " " . $contact['last']);
-    //                     $customerData['supervisorEmail'] = strtolower($contact['email']);
-    //                     $customerData['supervisorPhone'] = $contact['mobile'];
-    //                 }
-    //             }
-
-    //             $customerData['uuid'] = $serviceJob['company_uuid'];
-    //             $customerData['billingAddress'] = $serviceJob['billing_address'];
-
-    //             $customerData->save();
-
-    //             $job['customer_id'] = $customerData['id'];
-    //         } else {
-    //             $customerData = Customer::where('uuid', $serviceJob['company_uuid'])->first();
-    //             $job['customer_id'] = $customerData['id'];
-    //         }
-
-    //         $acitvityResponse = Http::withBasicAuth($username, $password)
-    //             ->get($servicem8Url . "/jobactivity.json?%24filter=job_uuid%20eq%20'" . $serviceJob['uuid'] . "'")
-    //             ->json();
-
-    //         $activities = [];
-    //         foreach ($acitvityResponse as $key => $activity) {
-    //             if ($activity['active'] === 1 && $activity['activity_was_scheduled'] === 1) {
-    //                 array_push($activities, $activity);
-    //                 break;
-    //             }
-    //         };
-
-    //         if (count($activities) !== 0) {
-    //             $inspector = User::where('uuid', $activities[0]['staff_uuid'])->first();
-    //             if ($inspector) {
-    //                 $job['inspector_id'] = $inspector['id'];
-    //             }
-    //             $job['startsAt'] = new DateTime($activities[0]["start_date"]);
-    //         }
-
-    //         $job->save();
-
-    //         array_push($existingJobs, [
-    //             'non-existing' => $serviceJob
-    //         ]);
-    //     }
-    // }
-
-    // return $existingJobs;
+        if ($i !== 0) {
+            $pdf->AddPage();
+        }
+        $pdf->writeHTML($table, false, false, false, false);
+    }
+    $pdf->Output();
 });

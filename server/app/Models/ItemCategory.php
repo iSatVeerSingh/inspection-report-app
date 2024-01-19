@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class LibraryItemCategory extends Model
+class ItemCategory extends Model
 {
     use HasFactory, HasUuids;
 
@@ -33,6 +33,6 @@ class LibraryItemCategory extends Model
      */
     public function libraryItems(): HasMany
     {
-        return $this->hasMany(LibraryItem::class, 'category_id');
+        return $this->hasMany(Item::class, 'category_id');
     }
 }

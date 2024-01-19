@@ -21,11 +21,11 @@ return new class extends Migration
             $table->dateTime('startsAt')->nullable();
             $table->string('siteAddress');
             $table->string('status')->index();
-            $table->dateTime('completedAt')->nullable();
-            $table->string('description')->nullable();
-            $table->json('inspectionNotes')->nullable();
-            $table->string('recommendation')->nullable();
-            $table->binary('pdf')->nullable();
+            $table->dateTime('completedAt')->nullable()->index();
+            $table->text('description')->nullable();
+            // $table->json('inspectionNotes')->nullable();
+            // $table->string('recommendation')->nullable();
+            // $table->binary('pdf')->nullable();
             $table->timestamps();
         });
     }
