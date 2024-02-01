@@ -83,8 +83,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/demo', function () {
-    $pdf = new ReportPdf('P', 'pt');
-    $pdf->MakePdf();
+    $pdf = new TCPDF('P', "pt");
+
+    $pdf->AddPage();
     // $tagvs = array('p' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)));
     $tagvs = [
         'p' => [
@@ -93,89 +94,105 @@ Route::get('/demo', function () {
         ]
     ];
     $pdf->setHtmlVSpace($tagvs);
-    $pdf->setAutoPageBreak(true);
 
-    $inspectionItems = InspectionItem::where("job_id", "b6b33735-f2f5-4606-b7ed-1e95cf121cab")->get();
-    foreach ($inspectionItems as $i => $item) {
+    $ht = '<p dir="ltr"><span style="white-space: pre-wrap;">Internally, Lexi</span><b><strong class="editor-text-bold" style="white-space: pre-wrap;">cal maintain</strong></b><span style="white-space: pre-wrap;">s the state of a given editor in memory, updating it in response to user inputs. Sometimes, it\'s useful to con</span><i><b><strong class="editor-text-bold editor-text-italic" style="white-space: pre-wrap;">vert this state into a serialized format in </strong></b></i></p><p dir="ltr"><i><b><strong class="editor-text-bold editor-text-italic" style="white-space: pre-wrap;">order to transfer it between editors</strong></b></i><span style="white-space: pre-wrap;"> or store it for retrieval at some later time. In order to make this process easier, Lexical</span><u><b><strong class="editor-text-bold editor-text-underline" style="white-space: pre-wrap;"> provides some APIs that allow Nodes to specif</strong></b></u><span style="white-space: pre-wrap;">y how they should be represented in common serialized formats.</span></p>';
 
-        $libItem = LibraryItem::find($item['library_item_id']);
-        $openingParagraphs = json_decode($libItem['openingParagraph']);
-        $closingParagraphs = json_decode($libItem['closingParagraph']);
-        $images = $item['images'];
-
-        $openingParaHtml = "";
-        foreach ($openingParagraphs as $paragraph) {
-            $paraText = "";
-            $spans = $paragraph->text;
-            foreach ($spans as $span) {
-                $spanText = $span->text;
-                if ($span->bold) {
-                    $spanText = '<b>' . $spanText . '</b>';
-                }
-                if ($span->italics) {
-                    $spanText = '<i>' . $spanText . '</i>';
-                }
-                $paraText = $paraText . $spanText;
-            }
-            $openingParaHtml = $openingParaHtml . '<p>' . $paraText . '</p>';
-        }
-
-        $row = "";
-        $imgTableTemp = '';
-        foreach ($images as $key => $img) {
-            $imgEle = '<td><img src="' . $img . '" style="display: block; width: 200pt; height: 200pt;"></td>';
-            $row = $row . $imgEle;
-
-            if ($key % 2 !== 0) {
-                $imgTableTemp = $imgTableTemp . '<tr>' . $row . '</tr>';
-                $row = "";
-            }
-
-            if ($key % 2 === 0 && $key === count($images) - 1) {
-                $imgTableTemp = $imgTableTemp . '<tr>' . $row . '</tr>';
-            }
-        }
-
-        $imgTable = '<table><tbody>' . $imgTableTemp . '</tbody></table>';
-
-        $embeddedImgEle = "";
-        if ($libItem['embeddedImage']) {
-            $embeddedImgEle = '<img src="' . $libItem['embeddedImage'] . '" style="display: block; width: 200pt; height: 200pt;">';
-        }
-
-        $closingParaHtml = "";
-        foreach ($closingParagraphs as $paragraph) {
-            $paraText = "";
-            $spans = $paragraph->text;
-            foreach ($spans as $span) {
-                $spanText = $span->text;
-                if ($span->bold) {
-                    $spanText = '<b>' . $spanText . '</b>';
-                }
-                if ($span->italics) {
-                    $spanText = '<i>' . $spanText . '</i>';
-                }
-                $paraText = $paraText . $spanText;
-            }
-            $closingParaHtml = $closingParaHtml . '<p>' . $paraText . '</p>';
-        }
-        $itemText = $openingParaHtml . $imgTable  . $embeddedImgEle  .  $closingParaHtml;
-
-        $table = '<table style="width: 495pt; border: 1pt solid black;">
-    <tbody>
-    <tr style="vertical-align: top;">
-    <td style="width: 30pt;">' . $i + 1 . '</td>
-    <td style="width: 470pt; padding-top: 0; padding-bottom: 0;">'
-            . $itemText .
-            '</td>
-    </tr>
-    </tbody>
-    </table>';
-
-        if ($i !== 0) {
-            $pdf->AddPage();
-        }
-        $pdf->writeHTML($table, false, false, false, false);
-    }
+    $pdf->writeHTML($ht);
     $pdf->Output();
+
+    // $pdf = new ReportPdf('P', 'pt');
+    // $pdf->MakePdf();
+    // // $tagvs = array('p' => array(0 => array('h' => 0, 'n' => 0), 1 => array('h' => 0, 'n' => 0)));
+    // $tagvs = [
+    //     'p' => [
+    //         0 => ['h' => 0, 'n' => 0],
+    //         1 => ['h' => 0, 'n' => 0]
+    //     ]
+    // ];
+    // $pdf->setHtmlVSpace($tagvs);
+    // $pdf->setAutoPageBreak(true);
+
+    // $inspectionItems = InspectionItem::where("job_id", "b6b33735-f2f5-4606-b7ed-1e95cf121cab")->get();
+    // foreach ($inspectionItems as $i => $item) {
+
+    //     $libItem = LibraryItem::find($item['library_item_id']);
+    //     $openingParagraphs = json_decode($libItem['openingParagraph']);
+    //     $closingParagraphs = json_decode($libItem['closingParagraph']);
+    //     $images = $item['images'];
+
+    //     $openingParaHtml = "";
+    //     foreach ($openingParagraphs as $paragraph) {
+    //         $paraText = "";
+    //         $spans = $paragraph->text;
+    //         foreach ($spans as $span) {
+    //             $spanText = $span->text;
+    //             if ($span->bold) {
+    //                 $spanText = '<b>' . $spanText . '</b>';
+    //             }
+    //             if ($span->italics) {
+    //                 $spanText = '<i>' . $spanText . '</i>';
+    //             }
+    //             $paraText = $paraText . $spanText;
+    //         }
+    //         $openingParaHtml = $openingParaHtml . '<p>' . $paraText . '</p>';
+    //     }
+
+    //     $row = "";
+    //     $imgTableTemp = '';
+    //     foreach ($images as $key => $img) {
+    //         $imgEle = '<td><img src="' . $img . '" style="display: block; width: 200pt; height: 200pt;"></td>';
+    //         $row = $row . $imgEle;
+
+    //         if ($key % 2 !== 0) {
+    //             $imgTableTemp = $imgTableTemp . '<tr>' . $row . '</tr>';
+    //             $row = "";
+    //         }
+
+    //         if ($key % 2 === 0 && $key === count($images) - 1) {
+    //             $imgTableTemp = $imgTableTemp . '<tr>' . $row . '</tr>';
+    //         }
+    //     }
+
+    //     $imgTable = '<table><tbody>' . $imgTableTemp . '</tbody></table>';
+
+    //     $embeddedImgEle = "";
+    //     if ($libItem['embeddedImage']) {
+    //         $embeddedImgEle = '<img src="' . $libItem['embeddedImage'] . '" style="display: block; width: 200pt; height: 200pt;">';
+    //     }
+
+    //     $closingParaHtml = "";
+    //     foreach ($closingParagraphs as $paragraph) {
+    //         $paraText = "";
+    //         $spans = $paragraph->text;
+    //         foreach ($spans as $span) {
+    //             $spanText = $span->text;
+    //             if ($span->bold) {
+    //                 $spanText = '<b>' . $spanText . '</b>';
+    //             }
+    //             if ($span->italics) {
+    //                 $spanText = '<i>' . $spanText . '</i>';
+    //             }
+    //             $paraText = $paraText . $spanText;
+    //         }
+    //         $closingParaHtml = $closingParaHtml . '<p>' . $paraText . '</p>';
+    //     }
+    //     $itemText = $openingParaHtml . $imgTable  . $embeddedImgEle  .  $closingParaHtml;
+
+    //     $table = '<table style="width: 495pt; border: 1pt solid black;">
+    // <tbody>
+    // <tr style="vertical-align: top;">
+    // <td style="width: 30pt;">' . $i + 1 . '</td>
+    // <td style="width: 470pt; padding-top: 0; padding-bottom: 0;">'
+    //         . $itemText .
+    //         '</td>
+    // </tr>
+    // </tbody>
+    // </table>';
+
+    //     if ($i !== 0) {
+    //         $pdf->AddPage();
+    //     }
+    //     $pdf->writeHTML($table, false, false, false, false);
+    // }
+    // $pdf->Output();
 });

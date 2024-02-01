@@ -6,19 +6,18 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Report extends Model
+class EmailTemplate extends Model
 {
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'job_id',
-        'inspectionNotes',
-        'recommendation',
-        'pdf'
-    ];
-
-    protected $casts = [
-        'active' => 'boolean',
-        'inspectionNotes' => 'arrary'
+        'active',
+        'name',
+        'subject',
+        'body',
+        'cctypes',
+        'condition',
+        'job_category_id',
+        'delay'
     ];
 }

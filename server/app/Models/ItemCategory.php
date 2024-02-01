@@ -27,11 +27,11 @@ class ItemCategory extends Model
     }
 
     /**
-     * Get all of the libraryItems for the LibraryItemCategory
+     * Get all of the items tems for the ItemCategory
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function libraryItems(): HasMany
+    public function items(): HasMany
     {
         return $this->hasMany(Item::class, 'category_id');
     }

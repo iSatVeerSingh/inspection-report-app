@@ -19,14 +19,14 @@ return new class extends Migration
             $table->json('images')->nullable();
             $table->text('note')->nullable();
             // if custom item
-            $table->boolean('isCustom')->default(false);
+            $table->boolean('custom')->default(false);
             $table->string('name')->nullable();
             $table->text('openingParagraph')->nullable();
             $table->text('closingParagraph')->nullable();
             $table->text('embeddedImage')->nullable();
 
             // is this belongs to previous item
-            $table->boolean('isPreviousItem')->default(false);
+            $table->boolean('previousItem')->default(false);
             $table->foreignUuid('previous_item_id')->nullable()->constrained('inspection_items');
             // $table->foreignId('previous_job_id')->nullable()->constrained('jobs');
             // $table->string('summary')->nullable();

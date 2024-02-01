@@ -26,38 +26,18 @@ class Job extends Model
         'status',
         'completedAt',
         'description',
-        // 'inspectionNotes',
-        // 'recommendation',
-        // 'pdf'
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'startsAt' => 'datetime',
         'completedAt' => 'datetime',
-        // 'inspectionNotes' => 'array',
     ];
 
     protected function serializeDate(DateTimeInterface $date)
     {
         return $date->format('Y-m-d h:i A');
     }
-
-    /**
-     * Perform any actions required after the model boots.
-     *
-     * @return void
-     */
-    // protected static function booted(): void
-    // {
-    //     static::addGlobalScope('inspector', function (Builder $builder) {
-    //         if (Auth::user()['role'] === "Inspector") {
-    //             $builder->where('inspector_id', Auth::id());
-    //             return;
-    //         }
-    //     });
-    // }
-
 
     /**
      * Get the category that owns the Job

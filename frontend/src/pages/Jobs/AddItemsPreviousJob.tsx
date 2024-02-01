@@ -1,8 +1,8 @@
-import { Box, Grid, Heading } from "@chakra-ui/react";
+import { Box, Flex, Grid, Heading, Text } from "@chakra-ui/react";
 import Card from "../../components/Card";
 import PageLayout from "../../layouts/PageLayout";
 import MiniDetail from "../../components/MiniDetail";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { InspectionItem, Job } from "../../types";
 import { useEffect, useState } from "react";
 import { inspectionApi } from "../../api";
@@ -30,11 +30,11 @@ const AddItemsPreviousJob = () => {
           return;
         }
         setItems(response.data?.data?.inspectionItems);
-        setLoading(false)
+        setLoading(false);
         console.log(response.data);
       }
     })();
-  });
+  }, []);
 
   return (
     <PageLayout title="Add Items From Previous Job">
@@ -63,7 +63,29 @@ const AddItemsPreviousJob = () => {
           {items.length !== 0 ? (
             <Grid gap={2}>
               {items.map((item) => (
-                <Card>{item.name}</Card>
+                <Link to={"./" + item.id} key={item.id} state={{ item }}>
+                  <Box bg={"main-bg"} p={3} borderRadius={"xl"} shadow={"xs"}>
+                    <Flex
+                      alignItems={"center"}
+                      justifyContent={"space-between"}
+                    >
+                      <Text
+                        fontSize={"xl"}
+                        fontWeight={"medium"}
+                        color={"text.700"}
+                      >
+                        {item.category || "Custom Item"}:- {item.name}
+                      </Text>
+                      <Text>Images:- {item.images?.length}</Text>
+                    </Flex>
+                    <Text>
+                      Note:-
+                      <Text as="span" color={"text.500"}>
+                        {item.note || "N/A"}
+                      </Text>
+                    </Text>
+                  </Box>
+                </Link>
               ))}
             </Grid>
           ) : (
