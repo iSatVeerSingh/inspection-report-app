@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('notes')->nullable();
             $table->text('recommendation')->nullable();
             $table->dateTime('completed_at')->nullable();
-            $table->longText('pdf')->nullable();
+            // $table->longText('pdf')->nullable();
             $table->timestamps();
         });
     }

@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -101,9 +102,11 @@ class ReportController extends Controller
         $pdf->MakePdf($report);
         $pdfFile = $pdf->Output("", "S");
 
-        $base64 = base64_encode($pdfFile);
+        Storage::put("reports/" . $report['id'] . ".pdf", $pdfFile);
 
-        $report->update(['pdf' => $base64]);
+        // $base64 = base64_encode($pdfFile);
+
+        // $report->update(['pdf' => $base64]);
 
         $completedAt = new DateTime();
 
@@ -156,12 +159,17 @@ class ReportController extends Controller
 
     public function getReportPdf(string $report_id, string $pdfname)
     {
-        $report = Report::find($report_id);
-        if (!$report) {
+        $pdfblob = Storage::get("reports/" . $report_id . ".pdf");
+        if (!$pdfblob) {
             return response()->json(['message' => "Report not found"], Response::HTTP_BAD_REQUEST);
         }
 
-        $pdfblob = base64_decode($report['pdf']);
+        // $report = Report::find($report_id);
+        // if (!$report) {
+        //     return response()->json(['message' => "Report not found"], Response::HTTP_BAD_REQUEST);
+        // }
+
+        // $pdfblob = base64_decode($report['pdf']);
 
         return response($pdfblob, 200, [
             'Content-Type' => 'application/pdf',
@@ -187,9 +195,14 @@ class ReportController extends Controller
         $user = Auth::user();
         $company = Company::first();
 
+        $pdfblob = Storage::get("reports/" . $report['id'] . ".pdf");
+        if (!$pdfblob) {
+            return response()->json(['message' => "Report not found"], Response::HTTP_BAD_REQUEST);
+        }
+
         $email = $company['reports_email'];
 
-        $sentMail = Mail::to($email)->send(new ReportCompleted(base64_decode($report['pdf']), $report->job, $user['first'] . " " . $user['last']));
+        $sentMail = Mail::to($email)->send(new ReportCompleted($pdfblob, $report->job, $user['first'] . " " . $user['last']));
         if (!$sentMail) {
             return response()->json(['message' => "Couldn't send pdf. Something went wrong"], Response::HTTP_BAD_REQUEST);
         }
