@@ -108,7 +108,11 @@ class ItemController extends Controller
         $itemCollection = InspectorItemResource::collection($items);
         $content = $itemCollection->toJson();
         $contentLength = strlen($content);
-        return response($content, 200, ['Content-Length' => $contentLength, "Content-Type" => "application/json,UTF-8"]);
+        return response($content, 200, [
+            "Content-Encoding" => "disabled",
+            'Content-Length' => $contentLength,
+            "Content-Type" => "application/json,UTF-8"
+        ]);
     }
 
     public function syncLibrary(Request $request)
