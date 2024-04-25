@@ -226,7 +226,7 @@ class DatabaseSeeder extends Seeder
 
     $terms->save();
 
-    $logoimg = Storage::get('logo.jpg');
+    $logoimg = Storage::get('mainlogo.jpg');
     $logo = 'data:image/jpeg;base64,' . base64_encode($logoimg);
 
     $company = new Company([
