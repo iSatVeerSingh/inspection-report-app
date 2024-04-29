@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\FullItemResource;
 use App\Http\Resources\InspectorItemCategoryResource;
+use App\Http\Resources\InspectorItemCollection;
 use App\Http\Resources\InspectorItemResource;
 use App\Http\Resources\InspectorNoteResource;
 use App\Http\Resources\InspectorRecommendationResource;
@@ -103,15 +104,19 @@ class ItemController extends Controller
 
     public function install()
     {
-        $items = Item::all();
+        $items = Item::paginate(150);
 
-        $itemCollection = InspectorItemResource::collection($items);
+        $itemCollection = new InspectorItemCollection($items);
+
         $content = $itemCollection->toJson();
-        $contentLength = strlen($content);
-        return response($content, 200, [
-            "Content-Encoding" => "disabled",
+        $compressd = gzencode($content);
+        $contentLength = strlen($compressd);
+
+        return response($compressd, 200, [
+            'Content-Type' => 'application/json',
+            'Content-Encoding' => 'gzip',
             'Content-Length' => $contentLength,
-            "Content-Type" => "application/json,UTF-8"
+            'Total-Pages' => $items->lastPage(),
         ]);
     }
 
