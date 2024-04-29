@@ -12,7 +12,7 @@
       name="description"
       content="Inspection Report App for Correct Inspections, Australia"
     />
-    <script type="module" crossorigin src="/assets/index-BLSP9PhP.js"></script>
+    <script type="module" crossorigin src="/assets/index-DgS2ddn_.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-Nno4m7lO.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>
