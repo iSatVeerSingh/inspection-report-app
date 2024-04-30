@@ -19,7 +19,6 @@ class InspectorItemResource extends JsonResource
             "name" => $this['name'],
             "category_id" => $this['category_id'],
             "summary" => $this['summary'],
-            "embedded_images" => $this['embedded_images'],
             "active" => $this['deleted_at'] === null
         ];
 

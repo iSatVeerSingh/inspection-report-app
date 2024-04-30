@@ -104,10 +104,6 @@ class ReportController extends Controller
 
         Storage::put("reports/" . $report['id'] . ".pdf", $pdfFile);
 
-        // $base64 = base64_encode($pdfFile);
-
-        // $report->update(['pdf' => $base64]);
-
         $completedAt = new DateTime();
 
         $report->update(['completed_at' => $completedAt]);
@@ -154,7 +150,11 @@ class ReportController extends Controller
 
         $content = json_encode($reportData);
         $contentLength = strlen($content);
-        return response($content, 200, ['Content-Length' => $contentLength, "Content-Type" => "application/json,UTF-8"]);
+        return response($content, 200, [
+            'Content-Length' => $contentLength,
+            "Content-Type" => "application/json,UTF-8",
+            "Content-Encoding" => "disabled",
+        ]);
     }
 
     public function getReportPdf(string $report_id, string $pdfname)
@@ -163,13 +163,6 @@ class ReportController extends Controller
         if (!$pdfblob) {
             return response()->json(['message' => "Report not found"], Response::HTTP_BAD_REQUEST);
         }
-
-        // $report = Report::find($report_id);
-        // if (!$report) {
-        //     return response()->json(['message' => "Report not found"], Response::HTTP_BAD_REQUEST);
-        // }
-
-        // $pdfblob = base64_decode($report['pdf']);
 
         return response($pdfblob, 200, [
             'Content-Type' => 'application/pdf',

@@ -104,19 +104,17 @@ class ItemController extends Controller
 
     public function install()
     {
-        $items = Item::paginate(150);
+        $items = Item::all();
 
         $itemCollection = new InspectorItemCollection($items);
 
         $content = $itemCollection->toJson();
-        $compressd = gzencode($content);
-        $contentLength = strlen($compressd);
+        $contentLength = strlen($content);
 
-        return response($compressd, 200, [
+        return response($content, 200, [
             'Content-Type' => 'application/json',
-            'Content-Encoding' => 'gzip',
             'Content-Length' => $contentLength,
-            'Total-Pages' => $items->lastPage(),
+            "Content-Encoding" => "disabled",
         ]);
     }
 
