@@ -9,6 +9,7 @@ use App\Models\User;
 use DateTime;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class SyncJobs extends Command
 {
@@ -190,5 +191,7 @@ class SyncJobs extends Command
                 $job->save();
             }
         }
+
+        Storage::put('synclogs.txt', "Sync jobs run " . $lastUpdated);
     }
 }
