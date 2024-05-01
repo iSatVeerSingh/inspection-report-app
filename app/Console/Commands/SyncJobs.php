@@ -192,6 +192,6 @@ class SyncJobs extends Command
             }
         }
 
-        Storage::put('synclogs.txt', "Sync jobs run " . $lastUpdated);
+        Storage::append('synclogs.txt', "Sync jobs run " . $lastUpdated);
     }
 }
